@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Dropdown, Menu, message } from 'antd';
+import React, { useState } from 'react';
+import { Table, Button, Dropdown, Menu, Modal } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import EmployeeModal from './EmployeeModal';
 import ModifyEmployeeModal from './ModifyEmployeeModal';
+import './EmployeeGrid.css';
 
 const EmployeeGrid = ({ employees, sectors, ces, skills, onAdd, onModify, onDelete }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModifyModalVisible, setIsModifyModalVisible] = useState(false);
+  const [currentEmployee, setCurrentEmployee] = useState(null);
   const [newEmployee, setNewEmployee] = useState({ name: '', sector: '', ce: '', skills: [] });
   const [modifyEmployee, setModifyEmployee] = useState({ id: '', name: '', sector: '', ce: '', skills: [] });
 
@@ -21,25 +23,24 @@ const EmployeeGrid = ({ employees, sectors, ces, skills, onAdd, onModify, onDele
       handleModifyClick(employee);
     } else if (e.key === 'delete') {
       handleDeleteClick(employee);
+    } else if (e.key === 'add') {
+      handleAddClick(employee.ce_name, employee.sector_name);
     }
   };
 
   const handleModifyClick = async (employee) => {
     try {
-      const response = await axios.get(`http://localhost:8080/employee_skills/${employee.employee_id}`);
-      const skills = response.data || []; // Assuming the response contains an array of skills
-      console.log('Fetched skills:', skills);
+      const { data: employeeSkills } = await axios.get(`http://localhost:8080/employee_skills/${employee.employee_id}`);
       setModifyEmployee({
         id: employee.employee_id,
         name: employee.employee_name,
         sector: employee.sector_name,
         ce: employee.ce_name,
-        skills: skills
+        skills: employeeSkills.map(skill => skill.id),
       });
       setIsModifyModalVisible(true);
     } catch (error) {
       console.error('Error fetching employee skills:', error);
-      message.error('Failed to fetch employee skills.');
     }
   };
 
@@ -54,36 +55,31 @@ const EmployeeGrid = ({ employees, sectors, ces, skills, onAdd, onModify, onDele
     return ces.map((ce) => {
       const rowData = { ce_name: ce.name };
       sectors.forEach((sector) => {
-        const employeeList = employees.filter(
+        const employee = employees.find(
           (emp) => emp.ce_name === ce.name && emp.sector_name === sector.name
         );
-        rowData[sector.name] = (
-          <div>
-            {employeeList.map((employee, index) => (
-              <Dropdown
-                key={`${employee.employee_id}-${index}`}
-                overlay={
-                  <Menu onClick={(e) => handleMenuClick(e, employee)}>
-                    <Menu.Item key="edit">Edit</Menu.Item>
-                    <Menu.Item key="delete">Delete</Menu.Item>
-                  </Menu>
-                }
-              >
-                <div className="employee-cell">
-                  <span className="employee-name">{employee.employee_name}</span>
-                </div>
-              </Dropdown>
-            ))}
-            {employeeList.length === 0 && (
-              <Button
-                type="default"
-                className="custom-add-button"
-                onClick={() => handleAddClick(ce.name, sector.name)}
-              >
-                <PlusOutlined />
-              </Button>
-            )}
-          </div>
+        rowData[sector.name] = employee ? (
+          <Dropdown
+            overlay={
+              <Menu onClick={(e) => handleMenuClick(e, employee)}>
+                <Menu.Item key="add">Add</Menu.Item>
+                <Menu.Item key="edit">Edit</Menu.Item>
+                <Menu.Item key="delete">Delete</Menu.Item>
+              </Menu>
+            }
+          >
+            <div className="employee-cell">
+              <span className="employee-name">{employee.employee_name}</span>
+            </div>
+          </Dropdown>
+        ) : (
+          <Button
+            type="default"
+            className="custom-add-button"
+            onClick={() => handleAddClick(ce.name, sector.name)}
+          >
+            <PlusOutlined />
+          </Button>
         );
       });
       return rowData;
@@ -118,11 +114,8 @@ const EmployeeGrid = ({ employees, sectors, ces, skills, onAdd, onModify, onDele
         rowKey="ce_name"
       />
       <EmployeeModal
-        open={isModalVisible}
-        onOk={(employee) => {
-          onAdd(employee);
-          setIsModalVisible(false);
-        }}
+        visible={isModalVisible}
+        onOk={() => onAdd(newEmployee)}
         onCancel={() => setIsModalVisible(false)}
         employee={newEmployee}
         onChange={setNewEmployee}
@@ -131,11 +124,8 @@ const EmployeeGrid = ({ employees, sectors, ces, skills, onAdd, onModify, onDele
         skills={skills}
       />
       <ModifyEmployeeModal
-        open={isModifyModalVisible}
-        onOk={(employee) => {
-          onModify(employee);
-          setIsModifyModalVisible(false);
-        }}
+        visible={isModifyModalVisible}
+        onOk={() => onModify(modifyEmployee)}
         onCancel={() => setIsModifyModalVisible(false)}
         employee={modifyEmployee}
         onChange={setModifyEmployee}

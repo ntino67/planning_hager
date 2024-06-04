@@ -1,47 +1,53 @@
 package main
 
 import (
-	"database/sql"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"log"
+	"net/http"
 )
 
+var db *gorm.DB
+
 func main() {
-	db, err := sql.Open("sqlite3", "./planning.db")
+	var err error
+	db, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Error opening database:", err)
+		log.Fatal("Failed to connect to database")
 	}
-	defer db.Close()
+
+	// Migrate the schema
+	if err := db.AutoMigrate(&Employee{}, &Sector{}, &CE{}, &Skill{}, &EmployeeSkill{}); err != nil {
+		log.Fatal("Failed to migrate database schema")
+	}
 
 	router := gin.Default()
-	router.Use(cors.Default())
+	router.Use(corsMiddleware())
 
-	router.GET("/sectors", func(c *gin.Context) { getSectors(c, db) })
-	router.GET("/ces", func(c *gin.Context) { getCEs(c, db) })
-	router.GET("/skills", func(c *gin.Context) { getSkills(c, db) }) // Ensure this route is added
+	router.GET("/sectors", getSectors)
+	router.GET("/ces", getCEs)
+	router.GET("/skills", getSkills)
+	router.GET("/employees_ce_sector", getEmployeesWithCESector)
+	router.POST("/add_employee", addEmployee)
+	router.POST("/modify_employee", modifyEmployee)
+	router.POST("/delete_employee", deleteEmployee)
+	router.GET("/employee_skills/:id", getEmployeeSkills)
 
-	router.POST("/sectors", func(c *gin.Context) { createSector(c, db) })
-	router.PUT("/sectors/:id", func(c *gin.Context) { updateSector(c, db) })
-	router.DELETE("/sectors/:id", func(c *gin.Context) { deleteSector(c, db) })
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Failed to run server: ", err)
+	}
+}
 
-	router.GET("/employees", func(c *gin.Context) { getEmployees(c, db) })
-	router.POST("/employees", func(c *gin.Context) { createEmployee(c, db) })
-	router.PUT("/employees/:id", func(c *gin.Context) { modifyEmployee(c, db) })
-	router.DELETE("/employees/:id", func(c *gin.Context) { deleteEmployee(c, db) })
-
-	router.POST("/ces", func(c *gin.Context) { createCE(c, db) })
-	router.PUT("/ces/:id", func(c *gin.Context) { updateCE(c, db) })
-	router.DELETE("/ces/:id", func(c *gin.Context) { deleteCE(c, db) })
-
-	router.GET("/employees_ce_sector", func(c *gin.Context) { getEmployeesWithCESector(c, db) })
-	router.POST("/add_employee", func(c *gin.Context) { addEmployee(c, db) })
-	router.POST("/delete_employee", func(c *gin.Context) { deleteEmployee(c, db) })
-	router.POST("/modify_employee", func(c *gin.Context) { modifyEmployee(c, db) })
-	router.GET("/employee_skills/:id", func(c *gin.Context) { getEmployeeSkills(c, db) })
-
-	router.GET("/planning")
-
-	router.Run(":8080")
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
 }
