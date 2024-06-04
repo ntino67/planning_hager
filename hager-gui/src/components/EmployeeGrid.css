@@ -1,0 +1,25 @@
+.custom-add-button {
+  border-color: transparent;
+  color: blue !important;
+}
+
+.custom-add-button:hover {
+  border-color: blue !important;
+  color: blue !important;
+}
+
+.employee-name {
+  padding: 5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.employee-name:hover {
+  border: 1px solid blue;
+  transition: all 0.5s;
+  color: blue;
+}

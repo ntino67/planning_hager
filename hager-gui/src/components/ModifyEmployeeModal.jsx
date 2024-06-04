@@ -3,7 +3,7 @@ import { Modal, Form, Input, Select } from 'antd';
 
 const { Option } = Select;
 
-const EmployeeModal = ({ open, onOk, onCancel, employee, onChange, sectors, ces, skills }) => {
+const ModifyEmployeeModal = ({ open, onOk, onCancel, employee, onChange, sectors, ces, skills }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     onChange({ ...employee, [name]: value });
@@ -18,7 +18,7 @@ const EmployeeModal = ({ open, onOk, onCancel, employee, onChange, sectors, ces,
       open={open}
       onOk={() => onOk(employee)}
       onCancel={onCancel}
-      title="Add Employee"
+      title="Modify Employee"
     >
       <Form layout="vertical">
         <Form.Item label="Name">
@@ -59,8 +59,8 @@ const EmployeeModal = ({ open, onOk, onCancel, employee, onChange, sectors, ces,
             onChange={(value) => handleSelectChange(value, 'skills')}
           >
             {skills.map((skill) => (
-              <Option key={skill.id} value={skill.name}>
-                {skill.name}
+              <Option key={skill} value={skill}>
+                {skill}
               </Option>
             ))}
           </Select>
@@ -70,4 +70,4 @@ const EmployeeModal = ({ open, onOk, onCancel, employee, onChange, sectors, ces,
   );
 };
 
-export default EmployeeModal;
+export default ModifyEmployeeModal;

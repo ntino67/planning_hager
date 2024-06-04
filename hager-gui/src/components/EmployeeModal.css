@@ -1,0 +1,9 @@
+.modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content .input-field,
+.modal-content .select-field {
+    margin-bottom: 1rem;
+}

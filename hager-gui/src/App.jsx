@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Layout, Menu, message} from 'antd';
 import axios from 'axios';
 import EmployeeGrid from './components/EmployeeGrid';
-import {EmployeeModal, ModifyEmployeeModal} from './components/EmployeeModal';
+import './App.css';
 
 const {Header, Content, Footer} = Layout;
 
@@ -10,10 +10,7 @@ function App() {
     const [employees, setEmployees] = useState([]);
     const [sectors, setSectors] = useState([]);
     const [ces, setCEs] = useState([]);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isModifyModalVisible, setIsModifyModalVisible] = useState(false);
-    const [newEmployee, setNewEmployee] = useState({name: '', sector: '', ce: ''});
-    const [modifyEmployee, setModifyEmployee] = useState({id: '', name: '', sector: '', ce: ''});
+    const [skills, setSkills] = useState([]);
 
     useEffect(() => {
         fetchEmployeeData();
@@ -33,72 +30,52 @@ function App() {
         try {
             const sectorResponse = await axios.get('http://localhost:8080/sectors');
             const ceResponse = await axios.get('http://localhost:8080/ces');
+            const skillsResponse = await axios.get('http://localhost:8080/skills');
             setSectors(sectorResponse.data.sort((a, b) => a.id - b.id));
             setCEs(ceResponse.data.sort((a, b) => a.id - b.id));
+            setSkills(skillsResponse.data);
         } catch (error) {
             console.error('Failed to fetch dropdown data', error);
         }
     };
 
-    const handleAdd = (sector, ce) => {
-        setNewEmployee({name: '', sector, ce});
-        setIsModalVisible(true);
-    };
-
-    const handleModify = (employee) => {
-        setModifyEmployee({
-            id: employee.employee_id,
-            name: employee.employee_name,
-            sector: employee.sector_name,
-            ce: employee.ce_name,
-        });
-        setIsModifyModalVisible(true);
-    };
-
-    const handleDelete = async (name, sector, ce) => {
+    const handleAddEmployee = async (employee) => {
         try {
-            const response = await axios.post('http://localhost:8080/delete_employee', {name, sector, ce});
-            if (response.status === 200) {
-                message.success('Employee deleted successfully');
-                fetchEmployeeData();
-            }
-        } catch (error) {
-            console.error(error);
-            message.error('Failed to delete employee');
-        }
-    };
-
-    const handleOk = async () => {
-        try {
-            const response = await axios.post('http://localhost:8080/add_employee', newEmployee);
+            const response = await axios.post('http://localhost:8080/add_employee', employee);
             if (response.status === 200) {
                 message.success('Employee added successfully');
                 fetchEmployeeData();
             }
         } catch (error) {
-            console.error(error);
+            console.error('Failed to add employee:', error);
             message.error('Failed to add employee');
         }
-        setIsModalVisible(false);
     };
 
-    const handleModifyOk = async (updatedEmployee) => {
+    const handleModifyEmployee = async (employee) => {
         try {
-            const response = await axios.post('http://localhost:8080/modify_employee', updatedEmployee);
+            const response = await axios.post('http://localhost:8080/modify_employee', employee);
             if (response.status === 200) {
                 message.success('Employee modified successfully');
                 fetchEmployeeData();
             }
         } catch (error) {
-            console.error(error);
+            console.error('Failed to modify employee:', error);
             message.error('Failed to modify employee');
         }
-        setIsModifyModalVisible(false);
     };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-        setIsModifyModalVisible(false);
+    const handleDeleteEmployee = async (employeeId) => {
+        try {
+            const response = await axios.post('http://localhost:8080/delete_employee', {id: employeeId});
+            if (response.status === 200) {
+                message.success('Employee deleted successfully');
+                fetchEmployeeData();
+            }
+        } catch (error) {
+            console.error('Failed to delete employee:', error);
+            message.error('Failed to delete employee');
+        }
     };
 
     const menuItems = [
@@ -116,34 +93,17 @@ function App() {
                 <div className="site-layout-content" style={{margin: '16px 0'}}>
                     <h1>Employee Grid</h1>
                     <EmployeeGrid
-                        onAdd={handleAdd}
-                        onModify={handleModify}
-                        onDelete={handleDelete}
                         employees={employees}
                         sectors={sectors}
                         ces={ces}
+                        skills={skills}
+                        onAdd={handleAddEmployee}
+                        onModify={handleModifyEmployee}
+                        onDelete={handleDeleteEmployee}
                     />
                 </div>
             </Content>
             <Footer style={{textAlign: 'center'}}>Company Planning ©2023</Footer>
-            <EmployeeModal
-                open={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-                employee={newEmployee}
-                onChange={setNewEmployee}
-                sectors={sectors}
-                ces={ces}
-            />
-            <ModifyEmployeeModal
-                open={isModifyModalVisible}
-                onOk={handleModifyOk}
-                onCancel={handleCancel}
-                employee={modifyEmployee}
-                onChange={setModifyEmployee}
-                sectors={sectors}
-                ces={ces}
-            />
         </Layout>
     );
 }
