@@ -4,22 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Remove ignored files and update planning UI code&#10;&#10;Removed .gitignore file from the committed files as they were being unnecessarily tracked. Also, deleted the planning grid UI component due to a shift in the project requirements. A new data source file was added to maintain tracking of planning data. The cleanup will make the codebase more manageable and up-to-date.">
-      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/Skills.jsx" afterDir="false" />
+    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Update GUI and enhance functionality&#10;&#10;Reformatted the CSS files for better readability and consistency. Updated the App's JSX to include a new &quot;Skills&quot; route. Improved the functionality in the EmployeeGrid, EmployeeModal, ModifyEmployeeModal, and added features in ModifyEmployeeModal such as search capabilities in Select dropdown on skills. Each change is intended to improve user experience and application efficiency.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/CEModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/CEModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/Home.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifyCEModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/ModifyCEModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifyEmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/ModifyEmployeeModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifySectorModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/ModifySectorModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/planning.db" beforeDir="false" afterPath="$PROJECT_DIR$/planning.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -123,7 +110,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Remove ignored files and update planning UI code&#10;&#10;Removed .gitignore file from the committed files as they were being unnecessarily tracked. Also, deleted the planning grid UI component due to a shift in the project requirements. A new data source file was added to maintain tracking of planning data. The cleanup will make the codebase more manageable and up-to-date." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove ignored files and update planning UI code&#10;&#10;Removed .gitignore file from the committed files as they were being unnecessarily tracked. Also, deleted the planning grid UI component due to a shift in the project requirements. A new data source file was added to maintain tracking of planning data. The cleanup will make the codebase more manageable and up-to-date." />
+    <MESSAGE value="Update GUI and enhance functionality&#10;&#10;Reformatted the CSS files for better readability and consistency. Updated the App's JSX to include a new &quot;Skills&quot; route. Improved the functionality in the EmployeeGrid, EmployeeModal, ModifyEmployeeModal, and added features in ModifyEmployeeModal such as search capabilities in Select dropdown on skills. Each change is intended to improve user experience and application efficiency." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update GUI and enhance functionality&#10;&#10;Reformatted the CSS files for better readability and consistency. Updated the App's JSX to include a new &quot;Skills&quot; route. Improved the functionality in the EmployeeGrid, EmployeeModal, ModifyEmployeeModal, and added features in ModifyEmployeeModal such as search capabilities in Select dropdown on skills. Each change is intended to improve user experience and application efficiency." />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

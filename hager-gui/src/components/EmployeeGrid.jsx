@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {Button, Dropdown, Menu, message, Table} from 'antd';
-import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
+import {Button, Dropdown, Menu, message, Modal, Table} from 'antd';
+import {DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import CEModal from './CEModal';
 import SectorModal from './SectorModal';
 import ModifyCEModal from './ModifyCEModal';
@@ -9,6 +9,8 @@ import ModifySectorModal from './ModifySectorModal';
 import EmployeeModal from './EmployeeModal';
 import ModifyEmployeeModal from './ModifyEmployeeModal';
 import './EmployeeGrid.css';
+
+const {confirm} = Modal;
 
 const EmployeeGrid = () => {
     const [employees, setEmployees] = useState([]);
@@ -70,6 +72,18 @@ const EmployeeGrid = () => {
         }
     };
 
+    const showDeleteConfirm = (item, type) => {
+        confirm({
+            title: `Are you sure you want to delete this ${type === 'ce' ? 'CE' : type === 'sector' ? 'sector' : 'employee'}?`,
+            icon: <ExclamationCircleOutlined/>,
+            content: 'This action cannot be undone.',
+            onOk: () => handleDelete(item, type),
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     const handleDelete = async (item, type) => {
         try {
             if (type === 'ce') {
@@ -91,12 +105,13 @@ const EmployeeGrid = () => {
         }
     };
 
+
     const renderDropdown = (item, type) => {
         let menuItems = [
             <Menu.Item key="edit" icon={<EditOutlined/>} onClick={() => handleMenuClick(item, type)}>
                 Edit
             </Menu.Item>,
-            <Menu.Item key="delete" icon={<DeleteOutlined/>} onClick={() => handleDelete(item, type)}>
+            <Menu.Item key="delete" icon={<DeleteOutlined/>} onClick={() => showDeleteConfirm(item, type)}>
                 Delete
             </Menu.Item>,
         ];
@@ -129,8 +144,7 @@ const EmployeeGrid = () => {
         const data = ces.map((ce) => {
             const row = {key: ce.id, ceName: ce.name};
             sectors.forEach((sector) => {
-                const employee = employees.filter((emp) => emp.ce_id === ce.id && emp.sector_id === sector.id);
-                row[sector.name] = employee;
+                row[sector.name] = employees.filter((emp) => emp.ce_id === ce.id && emp.sector_id === sector.id);
             });
             return row;
         });
@@ -172,7 +186,7 @@ const EmployeeGrid = () => {
                                             Edit
                                         </Menu.Item>
                                         <Menu.Item key="delete" icon={<DeleteOutlined/>}
-                                                   onClick={() => handleDelete(employee, 'employee')}>
+                                                   onClick={() => showDeleteConfirm(employee, 'employee')}>
                                             Delete
                                         </Menu.Item>
                                     </Menu>
