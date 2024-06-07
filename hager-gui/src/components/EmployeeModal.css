@@ -1,9 +1,11 @@
+/* Modal content */
 .modal-content {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.modal-content .input-field,
-.modal-content .select-field {
-    margin-bottom: 1rem;
+/* Modal form */
+.ant-form-item {
+  margin-bottom: 15px;
 }

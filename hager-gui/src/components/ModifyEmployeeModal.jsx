@@ -1,52 +1,124 @@
-import React from 'react';
-import {Form, Input, Modal, Select} from 'antd';
+import React, {useEffect, useState} from 'react';
+import {Button, Form, Input, message, Modal, Select} from 'antd';
+import axios from 'axios';
 
-const {Option} = Select;
+const ModifyEmployeeModal = ({visible, onClose, employee, fetchEmployees}) => {
+    const [form] = Form.useForm();
+    const [skills, setSkills] = useState([]);
+    const [ces, setCEs] = useState([]);
+    const [sectors, setSectors] = useState([]);
 
-const ModifyEmployeeModal = ({visible, onOk, onCancel, employee, onChange, sectors, ces, skills}) => {
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        onChange({...employee, [name]: value});
+    useEffect(() => {
+        fetchSkills();
+        console.log(employee)
+        fetchCEs();
+        fetchSectors();
+        if (employee) {
+            form.setFieldsValue({
+                name: employee.name,
+                ce_id: employee.ce_id,
+                sector_id: employee.sector_id,
+                skills: employee.Skills.map((skill) => skill.id),
+            });
+        }
+    }, [employee]);
+
+    const fetchSkills = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/skills');
+            setSkills(response.data);
+        } catch (error) {
+            console.error('Failed to fetch skills:', error);
+        }
     };
 
-    const handleSelectChange = (value, field) => {
-        onChange({...employee, [field]: value});
+    const fetchCEs = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/ces');
+            setCEs(response.data);
+        } catch (error) {
+            console.error('Failed to fetch CEs:', error);
+        }
+    };
+
+    const fetchSectors = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/sectors');
+            setSectors(response.data);
+        } catch (error) {
+            console.error('Failed to fetch sectors:', error);
+        }
+    };
+
+    const handleFinish = async (values) => {
+        try {
+            await axios.put(`http://localhost:8080/update_employee/${employee.id}`, {
+                ...values,
+                id: employee.id,
+            });
+            message.success('Employee updated successfully');
+            fetchEmployees();
+            onClose();
+        } catch (error) {
+            message.error('Failed to update employee');
+            console.error('Failed to update employee:', error);
+        }
     };
 
     return (
-        <Modal title="Modify Employee" visible={visible} onOk={onOk} onCancel={onCancel}>
-            <Form layout="vertical">
-                <Form.Item label="Name">
-                    <Input name="name" value={employee.name} onChange={handleChange}/>
+        <Modal
+            visible={visible}
+            title="Modify Employee"
+            onCancel={onClose}
+            footer={[
+                <Button key="cancel" onClick={onClose}>
+                    Cancel
+                </Button>,
+                <Button key="submit" type="primary" onClick={() => form.submit()}>
+                    Save
+                </Button>,
+            ]}
+        >
+            <Form form={form} layout="vertical" onFinish={handleFinish}>
+                <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[{required: true, message: 'Please enter the employee name'}]}
+                >
+                    <Input/>
                 </Form.Item>
-                <Form.Item label="Sector">
-                    <Select value={employee.sector} onChange={(value) => handleSelectChange(value, 'sector')}>
-                        {sectors.map((sector) => (
-                            <Option key={sector.id} value={sector.name}>
-                                {sector.name}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-                <Form.Item label="CE">
-                    <Select value={employee.ce} onChange={(value) => handleSelectChange(value, 'ce')}>
+                <Form.Item
+                    name="ce_id"
+                    label="CE"
+                    rules={[{required: true, message: 'Please select the CE'}]}
+                >
+                    <Select placeholder="Select CE">
                         {ces.map((ce) => (
-                            <Option key={ce.id} value={ce.name}>
+                            <Select.Option key={ce.id} value={ce.id}>
                                 {ce.name}
-                            </Option>
+                            </Select.Option>
                         ))}
                     </Select>
                 </Form.Item>
-                <Form.Item label="Skills">
-                    <Select
-                        mode="multiple"
-                        value={employee.skills}
-                        onChange={(value) => handleSelectChange(value, 'skills')}
-                    >
+                <Form.Item
+                    name="sector_id"
+                    label="Sector"
+                    rules={[{required: true, message: 'Please select the sector'}]}
+                >
+                    <Select placeholder="Select sector">
+                        {sectors.map((sector) => (
+                            <Select.Option key={sector.id} value={sector.id}>
+                                {sector.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+                <Form.Item name="skills" label="Skills">
+                    <Select mode="multiple" placeholder="Select skills">
                         {skills.map((skill) => (
-                            <Option key={skill.id} value={skill.id}>
+                            <Select.Option key={skill.id} value={skill.id}>
                                 {skill.name}
-                            </Option>
+                            </Select.Option>
                         ))}
                     </Select>
                 </Form.Item>

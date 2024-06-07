@@ -1,25 +1,73 @@
-.custom-add-button {
-  border-color: transparent;
-  color: blue !important;
+.employee-grid {
+  padding: 20px;
 }
 
-.custom-add-button:hover {
-  border-color: blue !important;
-  color: blue !important;
+.header-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.employee-name {
-  padding: 5px;
-  cursor: pointer;
+.header-buttons .ant-btn {
+  transition: border-color 0.3s ease, color 0.3s ease;
+  border-radius: 5px;
+}
+
+.header-buttons .ant-btn:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.dropdown-text {
+  display: inline-block;
+  width: 100%;
+  padding: 8px 12px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 5px;
+  transition: border-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  white-space: normal;
+}
+
+.dropdown-text:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.table-row {
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-.employee-name:hover {
-  border: 1px solid blue;
-  transition: all 0.5s;
-  color: blue;
+.table-row .ant-btn {
+  width: 100%;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-responsive table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: auto;
+}
+
+.table-responsive th,
+.table-responsive td {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ant-table {
+  table-layout: fixed;
 }

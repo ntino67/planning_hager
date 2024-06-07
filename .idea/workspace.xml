@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/CEModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/Home.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/ModifyCEModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/ModifySectorModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/planning_hager.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/planning_hager.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifyEmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/ModifyEmployeeModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/PlanningGrid.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/vite.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/models.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning.db" beforeDir="false" afterPath="$PROJECT_DIR$/planning.db" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JSX File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.22.3" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ntino67&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ntino67/planning_hager.git&quot;,
+    &quot;accountId&quot;: &quot;b7a37a63-7fff-4c57-8769-100f8ace01d0&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2hRr66HsIy3a4l2aF34zAfgybT8" />
+  <component name="ProjectViewState">
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="openDirectoriesWithSingleClick" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Go Build.go build planning_hager (1).executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "Planning-implementation",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "ignore_missing_gitignore": "true",
+    "last_opened_file_path": "C:/Users/matte/GolandProjects/planning_hager/hager-gui/src/components",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Users\\matte\\AppData\\Local\\Programs\\GoLand\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\matte\GolandProjects\planning_hager\hager-gui\src\components" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build planning_hager (1)">
+    <configuration name="go build planning_hager (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="planning_hager" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="planning_hager" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build planning_hager" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build planning_hager (1)" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.17011.92" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.17011.92" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

@@ -1,77 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { Layout, Menu, message } from 'antd';
-import axios from 'axios';
-import EmployeeGrid from './components/EmployeeGrid.jsx';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Layout, Menu } from 'antd';
+import Home from './components/Home';
+import Planning from './components/Planning';
+import './App.css';
+import 'antd/es/style/reset.css';
+import 'antd/es/style/index.js';
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
-const App = () => {
-  const [employees, setEmployees] = useState([]);
-  const [sectors, setSectors] = useState([]);
-  const [ces, setCEs] = useState([]);
-  const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDropdownData = async () => {
-      try {
-        const [sectorsData, cesData, skillsData] = await Promise.all([
-          axios.get('http://localhost:8080/sectors'),
-          axios.get('http://localhost:8080/ces'),
-          axios.get('http://localhost:8080/skills'),
-        ]);
-
-        console.log("Fetched sectors:", sectorsData.data);
-        console.log("Fetched ces:", cesData.data);
-        console.log("Fetched skills:", skillsData.data);
-
-        setSectors(sectorsData.data);
-        setCEs(cesData.data);
-        setSkills(skillsData.data);
-      } catch (error) {
-        console.error("Failed to fetch dropdown data:", error);
-        message.error("Failed to fetch dropdown data");
-      }
-    };
-
-    const fetchEmployeeData = async () => {
-      try {
-        const { data: employeesData } = await axios.get('http://localhost:8080/employees_ce_sector');
-        console.log("Fetched employees:", employeesData);
-        setEmployees(employeesData);
-      } catch (error) {
-        console.error("Failed to fetch employee data:", error);
-        message.error("Failed to fetch employee data");
-      }
-    };
-
-    fetchDropdownData();
-    fetchEmployeeData();
-    setLoading(false);
-  }, []);
-
+function App() {
   return (
-    <Layout>
-      <Header>
-        <Menu theme="dark" mode="horizontal">
-          <Menu.Item key="1">Home</Menu.Item>
-        </Menu>
-      </Header>
-      <Content style={{ padding: '50px' }}>
-        {!loading && (
-          <EmployeeGrid
-            employees={employees}
-            sectors={sectors}
-            ces={ces}
-            skills={skills}
-            onAdd={() => { /* handle add */ }}
-            onModify={() => { /* handle modify */ }}
-            onDelete={() => { /* handle delete */ }}
-          />
-        )}
-      </Content>
-    </Layout>
+    <Router>
+      <Layout className="layout">
+        <Header>
+          <div className="logo" />
+          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+            <Menu.Item key="1"><a href="/">Home</a></Menu.Item>
+            <Menu.Item key="2"><a href="/planning">Planning</a></Menu.Item>
+          </Menu>
+        </Header>
+        <Content style={{ padding: '0 50px' }}>
+          <div className="site-layout-content">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/planning" element={<Planning />} />
+            </Routes>
+          </div>
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>Hager ©2024</Footer>
+      </Layout>
+    </Router>
   );
-};
+}
 
 export default App;
