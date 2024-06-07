@@ -120,61 +120,28 @@ const EmployeeGrid = () => {
         );
     };
 
+    const resetEmployeeState = () => {
+        setSelectedEmployee(null);
+    };
+
 
     const renderTableData = () => {
         const data = ces.map((ce) => {
             const row = {key: ce.id, ceName: ce.name};
             sectors.forEach((sector) => {
-                const sectorEmployees = employees.filter((emp) => emp.ce_id === ce.id && emp.sector_id === sector.id);
-                row[sector.name] = sectorEmployees.length ? sectorEmployees.map((emp) => (
-                    <Dropdown
-                        overlay={
-                            <Menu>
-                                <Menu.Item key="edit" icon={<EditOutlined/>}
-                                           onClick={() => handleMenuClick(emp, 'employee')}>
-                                    Edit
-                                </Menu.Item>
-                                <Menu.Item key="delete" icon={<DeleteOutlined/>}
-                                           onClick={() => handleDelete(emp, 'employee')}>
-                                    Delete
-                                </Menu.Item>
-                                <Menu.Item key="add" icon={<PlusOutlined/>} onClick={() => {
-                                    setSelectedSector(sector);
-                                    setSelectedCE(ce);
-                                    setEmployeeModalVisible(true);
-                                }}>
-                                    Add
-                                </Menu.Item>
-                            </Menu>
-                        }
-                        key={emp.id}
-                    >
-                        <span className="dropdown-text">{emp.name}</span>
-                    </Dropdown>
-                )) : (
-                    <Button
-                        icon={<PlusOutlined/>}
-                        onClick={() => {
-                            setSelectedSector(sector);
-                            setSelectedCE(ce);
-                            setEmployeeModalVisible(true);
-                        }}
-                    />
-                );
+                const employee = employees.filter((emp) => emp.ce_id === ce.id && emp.sector_id === sector.id);
+                row[sector.name] = employee;
             });
             return row;
         });
 
         const columns = [
             {
-                title: 'CE',
-                dataIndex: 'ceName',
-                key: 'ceName',
-                render: (text, record) => (
+                title: 'CE', dataIndex: 'ceName', key: 'ceName', render: (text, record) => (
                     <div className="dropdown-container">
                         {renderDropdown({name: text, id: record.key}, 'ce')}
                     </div>
-                ),
+                )
             },
             ...sectors.map((sector) => ({
                 title: (
@@ -186,9 +153,44 @@ const EmployeeGrid = () => {
                 key: sector.id,
                 render: (text, record) => (
                     <div className="table-row">
-                        {text}
+                        {text && text.length > 0 ? text.map((employee, index) => (
+                            <Dropdown
+                                overlay={
+                                    <Menu>
+                                        <Menu.Item key="add" icon={<PlusOutlined/>} onClick={() => {
+                                            setSelectedSector(sector);
+                                            setSelectedCE(ces.find((ce) => ce.id === record.key));
+                                            resetEmployeeState();
+                                            setEmployeeModalVisible(true);
+                                        }}>
+                                            Add
+                                        </Menu.Item>
+                                        <Menu.Item key="edit" icon={<EditOutlined/>} onClick={() => {
+                                            setSelectedEmployee(employee);
+                                            setModifyEmployeeModalVisible(true);
+                                        }}>
+                                            Edit
+                                        </Menu.Item>
+                                        <Menu.Item key="delete" icon={<DeleteOutlined/>}
+                                                   onClick={() => handleDelete(employee, 'employee')}>
+                                            Delete
+                                        </Menu.Item>
+                                    </Menu>
+                                }
+                                key={index}
+                            >
+                                <span className="dropdown-text">{employee.name}</span>
+                            </Dropdown>
+                        )) : (
+                            <Button icon={<PlusOutlined/>} onClick={() => {
+                                setSelectedSector(sector);
+                                setSelectedCE(ces.find((ce) => ce.id === record.key));
+                                resetEmployeeState();
+                                setEmployeeModalVisible(true);
+                            }}/>
+                        )}
                     </div>
-                ),
+                )
             })),
         ];
 

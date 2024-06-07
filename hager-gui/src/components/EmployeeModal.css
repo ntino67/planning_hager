@@ -1,11 +1,11 @@
 /* Modal content */
 .modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 /* Modal form */
 .ant-form-item {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }

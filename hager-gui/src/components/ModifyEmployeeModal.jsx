@@ -10,7 +10,6 @@ const ModifyEmployeeModal = ({visible, onClose, employee, fetchEmployees}) => {
 
     useEffect(() => {
         fetchSkills();
-        console.log(employee)
         fetchCEs();
         fetchSectors();
         if (employee) {
@@ -114,13 +113,22 @@ const ModifyEmployeeModal = ({visible, onClose, employee, fetchEmployees}) => {
                     </Select>
                 </Form.Item>
                 <Form.Item name="skills" label="Skills">
-                    <Select mode="multiple" placeholder="Select skills">
-                        {skills.map((skill) => (
-                            <Select.Option key={skill.id} value={skill.id}>
+                    <Select
+                        mode="multiple"
+                        showSearch
+                        placeholder="Select skills"
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                    >
+                        {skills.map(skill => (
+                            <Option key={skill.id} value={skill.id} label={skill.name}>
                                 {skill.name}
-                            </Select.Option>
+                            </Option>
                         ))}
                     </Select>
+
                 </Form.Item>
             </Form>
         </Modal>

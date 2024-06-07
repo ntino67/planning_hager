@@ -1,52 +1,52 @@
 /* Container */
 .employee-grid-container {
-  padding: 20px;
-  background: #f0f2f5;
-  border-radius: 8px;
+    padding: 20px;
+    background: #f0f2f5;
+    border-radius: 8px;
 }
 
 /* Add buttons */
 .add-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
 }
 
 .add-buttons .ant-btn {
-  margin-left: 10px;
+    margin-left: 10px;
 }
 
 /* Employee cells */
 .employee-cell {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .employee-cell button {
-  margin-left: 5px;
+    margin-left: 5px;
 }
 
 /* Modals */
 .ant-modal-header {
-  background: #001529;
-  color: white;
+    background: #001529;
+    color: white;
 }
 
 .ant-modal-title {
-  color: white;
+    color: white;
 }
 
 .ant-modal-footer {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 }
 
 .ant-modal-footer button {
-  margin-left: 5px;
+    margin-left: 5px;
 }
 
 .ant-modal-footer .ant-btn-primary {
-  background: #001529;
-  border-color: #001529;
+    background: #001529;
+    border-color: #001529;
 }
