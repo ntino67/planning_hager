@@ -1,41 +1,42 @@
-import React from 'react';
-import {Button, Form, Input, message, Modal} from 'antd';
-import axios from 'axios';
+import React, {useEffect} from 'react';
+import {Button, Form, Input, Modal} from 'antd';
+import api from "../utils/Api.jsx";
 
-const CEModal = ({visible, onClose, fetchCEs}) => {
+const CEModal = ({ visible, onClose, ce, onSubmit }) => {
     const [form] = Form.useForm();
 
-    const handleFinish = async (values) => {
+    useEffect(() => {
+        if (ce) {
+            form.setFieldsValue(ce);
+        } else {
+            form.resetFields();
+        }
+    }, [ce, form]);
+
+    const handleSubmit = async (values) => {
         try {
-            await axios.post('http://localhost:8080/add_ce', values);
-            message.success('CE added successfully');
-            fetchCEs();
+            if (ce) {
+                await api.put(`http://localhost:8080/update_ce/${ce.id}`, values);
+            } else {
+                await api.post('http://localhost:8080/add_ce', values);
+            }
+            onSubmit();
             onClose();
         } catch (error) {
-            message.error('Failed to add CE');
-            console.error('Failed to add CE:', error);
+            message.error('Failed to save CE');
         }
     };
 
     return (
         <Modal
-            title="Add CE"
+            title={ce ? 'Edit CE' : 'Add CE'}
             visible={visible}
             onCancel={onClose}
-            footer={null}
+            onOk={() => form.submit()}
         >
-            <Form form={form} onFinish={handleFinish}>
-                <Form.Item
-                    name="name"
-                    label="CE Name"
-                    rules={[{required: true, message: 'Please input the name of the CE!'}]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Add
-                    </Button>
+            <Form form={form} onFinish={handleSubmit} layout="vertical">
+                <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+                    <Input />
                 </Form.Item>
             </Form>
         </Modal>

@@ -499,7 +499,7 @@
     </routine>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-06-05.06:22:22</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-06-24.08:12:48</LastIntrospectionLocalTimestamp>
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1592,171 +1592,178 @@
     </argument>
     <table id="555" parent="191" name="ces"/>
     <table id="556" parent="191" name="employee_skills"/>
-    <table id="557" parent="191" name="employees"/>
-    <table id="558" parent="191" name="planning"/>
-    <table id="559" parent="191" name="planning_details"/>
-    <table id="560" parent="191" name="plannings"/>
-    <table id="561" parent="191" name="sectors"/>
-    <table id="562" parent="191" name="skills"/>
-    <table id="563" parent="191" name="sqlite_master">
+    <table id="557" parent="191" name="employee_with_ce_sectors"/>
+    <table id="558" parent="191" name="employees"/>
+    <table id="559" parent="191" name="planning"/>
+    <table id="560" parent="191" name="sectors"/>
+    <table id="561" parent="191" name="skills"/>
+    <table id="562" parent="191" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="564" parent="191" name="sqlite_sequence">
+    <table id="563" parent="191" name="sqlite_sequence">
       <System>1</System>
     </table>
-    <column id="565" parent="555" name="id">
+    <column id="564" parent="555" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>INTEGER|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="566" parent="555" name="name">
+    <column id="565" parent="555" name="name">
       <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="567" parent="555" name="created_at">
+    <column id="566" parent="555" name="created_at">
       <DasType>datetime|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="568" parent="555" name="updated_at">
+    <column id="567" parent="555" name="updated_at">
       <DasType>datetime|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="569" parent="555" name="deleted_at">
+    <column id="568" parent="555" name="deleted_at">
       <DasType>datetime|0s</DasType>
       <Position>5</Position>
     </column>
-    <index id="570" parent="555" name="idx_ces_deleted_at">
+    <index id="569" parent="555" name="idx_ces_deleted_at">
       <ColNames>deleted_at</ColNames>
     </index>
-    <key id="571" parent="555">
+    <key id="570" parent="555">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="572" parent="556" name="employee_id">
+    <column id="571" parent="556" name="employee_id">
       <DasType>INTEGER|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="573" parent="556" name="skill_id">
+    <column id="572" parent="556" name="skill_id">
       <DasType>INTEGER|0s</DasType>
       <Position>2</Position>
     </column>
-    <foreign-key id="574" parent="556">
+    <foreign-key id="573" parent="556">
       <ColNames>employee_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>employees</RefTableName>
     </foreign-key>
-    <foreign-key id="575" parent="556">
+    <foreign-key id="574" parent="556">
       <ColNames>skill_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>skills</RefTableName>
     </foreign-key>
-    <column id="576" parent="557" name="id">
+    <column id="575" parent="557" name="employee_id">
+      <DasType>integer|0s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="576" parent="557" name="employee_name">
+      <DasType>text|0s</DasType>
+      <Position>2</Position>
+    </column>
+    <column id="577" parent="557" name="ce_name">
+      <DasType>text|0s</DasType>
+      <Position>3</Position>
+    </column>
+    <column id="578" parent="557" name="sector_name">
+      <DasType>text|0s</DasType>
+      <Position>4</Position>
+    </column>
+    <column id="579" parent="558" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>INTEGER|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="577" parent="557" name="name">
+    <column id="580" parent="558" name="name">
       <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="578" parent="557" name="ce_id">
+    <column id="581" parent="558" name="ce_id">
       <DasType>INTEGER|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="579" parent="557" name="sector_id">
+    <column id="582" parent="558" name="sector_id">
       <DasType>INTEGER|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="580" parent="557" name="created_at">
+    <column id="583" parent="558" name="created_at">
       <DasType>datetime|0s</DasType>
       <Position>5</Position>
     </column>
-    <column id="581" parent="557" name="updated_at">
+    <column id="584" parent="558" name="updated_at">
       <DasType>datetime|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="582" parent="557" name="deleted_at">
+    <column id="585" parent="558" name="deleted_at">
       <DasType>datetime|0s</DasType>
       <Position>7</Position>
     </column>
-    <foreign-key id="583" parent="557" name="fk_employees_ce">
+    <foreign-key id="586" parent="558" name="fk_ces_employees">
       <ColNames>ce_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>ces</RefTableName>
     </foreign-key>
-    <foreign-key id="584" parent="557">
+    <foreign-key id="587" parent="558" name="fk_employees_ce">
       <ColNames>ce_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>ces</RefTableName>
     </foreign-key>
-    <foreign-key id="585" parent="557" name="fk_employees_sector">
+    <foreign-key id="588" parent="558">
+      <ColNames>ce_id</ColNames>
+      <RefColNames>id</RefColNames>
+      <RefTableName>ces</RefTableName>
+    </foreign-key>
+    <foreign-key id="589" parent="558" name="fk_employees_sector">
       <ColNames>sector_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>sectors</RefTableName>
     </foreign-key>
-    <foreign-key id="586" parent="557">
+    <foreign-key id="590" parent="558">
       <ColNames>sector_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>sectors</RefTableName>
     </foreign-key>
-    <index id="587" parent="557" name="idx_employees_deleted_at">
-      <ColNames>deleted_at</ColNames>
-    </index>
-    <key id="588" parent="557">
+    <key id="591" parent="558">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="589" parent="558" name="id">
+    <column id="592" parent="559" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>INTEGER|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="590" parent="558" name="date">
+    <column id="593" parent="559" name="date">
       <DasType>TEXT|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="591" parent="558" name="shift">
-      <DasType>INTEGER|0s</DasType>
+    <column id="594" parent="559" name="shift">
+      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="592" parent="558" name="ce_id">
+    <column id="595" parent="559" name="ce_id">
       <DasType>INTEGER|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="593" parent="558" name="sector_id">
+    <column id="596" parent="559" name="sector_id">
       <DasType>INTEGER|0s</DasType>
       <Position>5</Position>
     </column>
-    <column id="594" parent="558" name="employee_id">
+    <column id="597" parent="559" name="employee_id">
       <DasType>INTEGER|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="595" parent="558" name="status">
-      <DasType>INTEGER|0s</DasType>
+    <column id="598" parent="559" name="status">
+      <DasType>TEXT|0s</DasType>
       <Position>7</Position>
     </column>
-    <key id="596" parent="558">
-      <ColNames>id</ColNames>
-      <Primary>1</Primary>
-    </key>
-    <column id="597" parent="559" name="planning_id">
+    <column id="599" parent="559" name="week">
       <DasType>INTEGER|0s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="598" parent="559" name="sector_id">
-      <DasType>INTEGER|0s</DasType>
-      <Position>2</Position>
-    </column>
-    <column id="599" parent="559" name="employee_id">
-      <DasType>INTEGER|0s</DasType>
-      <Position>3</Position>
+      <DefaultExpression>1</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>8</Position>
     </column>
     <foreign-key id="600" parent="559">
-      <ColNames>planning_id</ColNames>
+      <ColNames>ce_id</ColNames>
       <RefColNames>id</RefColNames>
-      <RefTableName>plannings</RefTableName>
+      <RefTableName>ces</RefTableName>
     </foreign-key>
     <foreign-key id="601" parent="559">
       <ColNames>sector_id</ColNames>
@@ -1768,134 +1775,92 @@
       <RefColNames>id</RefColNames>
       <RefTableName>employees</RefTableName>
     </foreign-key>
-    <index id="603" parent="559" name="sqlite_autoindex_planning_details_1">
-      <ColNames>planning_id
-sector_id
-employee_id</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <Unique>1</Unique>
-    </index>
-    <key id="604" parent="559">
-      <ColNames>planning_id
-sector_id
-employee_id</ColNames>
-      <Primary>1</Primary>
-      <UnderlyingIndexName>sqlite_autoindex_planning_details_1</UnderlyingIndexName>
-    </key>
-    <column id="605" parent="560" name="id">
-      <AutoIncrement>1</AutoIncrement>
-      <DasType>INTEGER|0s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="606" parent="560" name="date">
-      <DasType>TEXT|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>2</Position>
-    </column>
-    <column id="607" parent="560" name="shift">
-      <DasType>INTEGER|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>3</Position>
-    </column>
-    <column id="608" parent="560" name="ce_id">
-      <DasType>INTEGER|0s</DasType>
-      <Position>4</Position>
-    </column>
-    <column id="609" parent="560" name="status">
-      <DasType>INTEGER|0s</DasType>
-      <Position>5</Position>
-    </column>
-    <foreign-key id="610" parent="560">
-      <ColNames>ce_id</ColNames>
-      <RefColNames>id</RefColNames>
-      <RefTableName>ces</RefTableName>
-    </foreign-key>
-    <key id="611" parent="560">
+    <key id="603" parent="559">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="612" parent="561" name="id">
+    <column id="604" parent="560" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>INTEGER|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="613" parent="561" name="name">
+    <column id="605" parent="560" name="name">
       <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="614" parent="561" name="created_at">
+    <column id="606" parent="560" name="created_at">
       <DasType>datetime|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="615" parent="561" name="updated_at">
+    <column id="607" parent="560" name="updated_at">
       <DasType>datetime|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="616" parent="561" name="deleted_at">
+    <column id="608" parent="560" name="deleted_at">
       <DasType>datetime|0s</DasType>
       <Position>5</Position>
     </column>
-    <index id="617" parent="561" name="idx_sectors_deleted_at">
+    <index id="609" parent="560" name="idx_sectors_deleted_at">
       <ColNames>deleted_at</ColNames>
     </index>
-    <key id="618" parent="561">
+    <key id="610" parent="560">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="619" parent="562" name="id">
+    <column id="611" parent="561" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>INTEGER|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="620" parent="562" name="name">
+    <column id="612" parent="561" name="name">
       <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="621" parent="562" name="created_at">
+    <column id="613" parent="561" name="created_at">
       <DasType>datetime|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="622" parent="562" name="updated_at">
+    <column id="614" parent="561" name="updated_at">
       <DasType>datetime|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="623" parent="562" name="deleted_at">
+    <column id="615" parent="561" name="deleted_at">
       <DasType>datetime|0s</DasType>
       <Position>5</Position>
     </column>
-    <index id="624" parent="562" name="idx_skills_deleted_at">
+    <index id="616" parent="561" name="idx_skills_deleted_at">
       <ColNames>deleted_at</ColNames>
     </index>
-    <key id="625" parent="562">
+    <key id="617" parent="561">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="626" parent="563" name="type">
+    <column id="618" parent="562" name="type">
       <DasType>TEXT|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="627" parent="563" name="name">
+    <column id="619" parent="562" name="name">
       <DasType>TEXT|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="628" parent="563" name="tbl_name">
+    <column id="620" parent="562" name="tbl_name">
       <DasType>TEXT|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="629" parent="563" name="rootpage">
+    <column id="621" parent="562" name="rootpage">
       <DasType>INT|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="630" parent="563" name="sql">
+    <column id="622" parent="562" name="sql">
       <DasType>TEXT|0s</DasType>
       <Position>5</Position>
     </column>
-    <column id="631" parent="564" name="name">
+    <column id="623" parent="563" name="name">
       <Position>1</Position>
     </column>
-    <column id="632" parent="564" name="seq">
+    <column id="624" parent="563" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

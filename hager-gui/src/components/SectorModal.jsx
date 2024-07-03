@@ -1,41 +1,54 @@
-import React from 'react';
-import {Button, Form, Input, message, Modal} from 'antd';
-import axios from 'axios';
+import React, { useEffect, useRef } from 'react';
+import { Modal, Form, Input, message } from 'antd';
+import api from "../utils/Api.jsx";
 
-const SectorModal = ({visible, onClose, fetchSectors}) => {
+const SectorModal = ({ visible, onClose, sector, onSubmit }) => {
     const [form] = Form.useForm();
+    const inputRef = useRef(null);
 
-    const handleFinish = async (values) => {
+    useEffect(() => {
+        if (sector) {
+            form.setFieldsValue(sector);
+        } else {
+            form.resetFields();
+        }
+        // Focus on the input when the modal opens
+        if (visible) {
+            setTimeout(() => inputRef.current?.focus(), 100);
+        }
+    }, [sector, form, visible]);
+
+    const handleSubmit = async (values) => {
         try {
-            await axios.post('http://localhost:8080/add_sector', values);
-            message.success('Sector added successfully');
-            fetchSectors();
+            if (sector) {
+                await api.put(`http://localhost:8080/update_sector/${sector.id}`, values);
+                message.success('Sector updated successfully');
+            } else {
+                await api.post('http://localhost:8080/add_sector', values);
+                message.success('Sector added successfully');
+            }
+            onSubmit();
             onClose();
         } catch (error) {
-            message.error('Failed to add sector');
-            console.error('Failed to add sector:', error);
+            message.error('Failed to save sector');
         }
     };
 
     return (
         <Modal
-            title="Add Sector"
+            title={sector ? 'Edit Sector' : 'Add Sector'}
             visible={visible}
             onCancel={onClose}
-            footer={null}
+            onOk={() => form.submit()}
+            destroyOnClose={true}
         >
-            <Form form={form} onFinish={handleFinish}>
+            <Form form={form} onFinish={handleSubmit} layout="vertical">
                 <Form.Item
                     name="name"
-                    label="Sector Name"
-                    rules={[{required: true, message: 'Please input the name of the sector!'}]}
+                    label="Name"
+                    rules={[{ required: true, message: 'Please input the sector name!' }]}
                 >
-                    <Input/>
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Add
-                    </Button>
+                    <Input ref={inputRef} />
                 </Form.Item>
             </Form>
         </Modal>

@@ -4,10 +4,54 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Update GUI and enhance functionality&#10;&#10;Reformatted the CSS files for better readability and consistency. Updated the App's JSX to include a new &quot;Skills&quot; route. Improved the functionality in the EmployeeGrid, EmployeeModal, ModifyEmployeeModal, and added features in ModifyEmployeeModal such as search capabilities in Select dropdown on skills. Each change is intended to improve user experience and application efficiency.">
+    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Update GUI and improve functionalities&#10;&#10;Reformatted CSS for enhanced readability and consistency. Introduced a new &quot;Skills&quot; route in the App's JSX, and amplified functionality in EmployeeGrid, EmployeeModal, and ModifyEmployeeModal. Added search capabilities in Select dropdown on skills in ModifyEmployeeModal for an improved user experience and efficiency of the application.">
+      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/database.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/AddCEModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/AddEmployeeModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/EditCEModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeForm.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/Login.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/PlanningModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/PlanningTab.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/UpdatePlanningModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/context/AppContext.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hager-gui/src/utils/api.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/auth.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/ce.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/employee.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/planning.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/sectors.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/skill.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routes/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cac8b081-7f51-417e-9e25-a2f65f663044.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cac8b081-7f51-417e-9e25-a2f65f663044.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/CEModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/CEModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifyCEModal.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifyEmployeeModal.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ModifySectorModal.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Skills.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning-app" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/planning.db" beforeDir="false" afterPath="$PROJECT_DIR$/planning.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schema.sql" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +61,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="CSS File" />
         <option value="JSX File" />
+        <option value="Go File" />
       </list>
     </option>
   </component>
@@ -41,36 +87,53 @@
   &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="2hRr66HsIy3a4l2aF34zAfgybT8" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollToSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Go Build.go build planning_hager (1).executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "Planning-implementation",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "ignore_missing_gitignore": "true",
-    "last_opened_file_path": "C:/Users/matte/GolandProjects/planning_hager/hager-gui/src/components",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\matte\\AppData\\Local\\Programs\\GoLand\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build planning_hager (1).executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;database.data.extractors.current.export.id&quot;: &quot;CSV-Groovy.csv.groovy&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Planning-implementation&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;ignore_missing_gitignore&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/matte/GolandProjects/planning_hager&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\matte\\AppData\\Local\\Programs\\GoLand\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;azure&quot;
+    ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\matte\GolandProjects\planning_hager\hager-gui\src\components" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matte\GolandProjects\planning_hager\db" />
+      <recent name="C:\Users\matte\GolandProjects\planning_hager\models" />
+      <recent name="C:\Users\matte\GolandProjects\planning_hager\handlers" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build planning_hager (1)">
@@ -99,8 +162,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.17011.92" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.17011.92" />
+        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.18034.61" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.18034.61" />
       </set>
     </attachedChunks>
   </component>
@@ -111,7 +174,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Remove ignored files and update planning UI code&#10;&#10;Removed .gitignore file from the committed files as they were being unnecessarily tracked. Also, deleted the planning grid UI component due to a shift in the project requirements. A new data source file was added to maintain tracking of planning data. The cleanup will make the codebase more manageable and up-to-date." />
     <MESSAGE value="Update GUI and enhance functionality&#10;&#10;Reformatted the CSS files for better readability and consistency. Updated the App's JSX to include a new &quot;Skills&quot; route. Improved the functionality in the EmployeeGrid, EmployeeModal, ModifyEmployeeModal, and added features in ModifyEmployeeModal such as search capabilities in Select dropdown on skills. Each change is intended to improve user experience and application efficiency." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update GUI and enhance functionality&#10;&#10;Reformatted the CSS files for better readability and consistency. Updated the App's JSX to include a new &quot;Skills&quot; route. Improved the functionality in the EmployeeGrid, EmployeeModal, ModifyEmployeeModal, and added features in ModifyEmployeeModal such as search capabilities in Select dropdown on skills. Each change is intended to improve user experience and application efficiency." />
+    <MESSAGE value="Update GUI and improve functionalities&#10;&#10;Reformatted CSS for enhanced readability and consistency. Introduced a new &quot;Skills&quot; route in the App's JSX, and amplified functionality in EmployeeGrid, EmployeeModal, and ModifyEmployeeModal. Added search capabilities in Select dropdown on skills in ModifyEmployeeModal for an improved user experience and efficiency of the application." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update GUI and improve functionalities&#10;&#10;Reformatted CSS for enhanced readability and consistency. Introduced a new &quot;Skills&quot; route in the App's JSX, and amplified functionality in EmployeeGrid, EmployeeModal, and ModifyEmployeeModal. Added search capabilities in Select dropdown on skills in ModifyEmployeeModal for an improved user experience and efficiency of the application." />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

@@ -1,271 +1,303 @@
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
-import {Button, Dropdown, Menu, message, Modal, Table} from 'antd';
-import {DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Dropdown, Input, Menu, message, Modal, Spin, Table, Tooltip } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import CEModal from './CEModal';
 import SectorModal from './SectorModal';
-import ModifyCEModal from './ModifyCEModal';
-import ModifySectorModal from './ModifySectorModal';
 import EmployeeModal from './EmployeeModal';
-import ModifyEmployeeModal from './ModifyEmployeeModal';
 import './EmployeeGrid.css';
+import api from '../utils/Api.jsx';
 
-const {confirm} = Modal;
+const { Search } = Input;
 
 const EmployeeGrid = () => {
     const [employees, setEmployees] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [ces, setCEs] = useState([]);
     const [sectors, setSectors] = useState([]);
+    const [skills, setSkills] = useState([]);
+    const [isCEModalVisible, setCEModalVisible] = useState(false);
+    const [isSectorModalVisible, setSectorModalVisible] = useState(false);
+    const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
     const [selectedCE, setSelectedCE] = useState(null);
     const [selectedSector, setSelectedSector] = useState(null);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [isCEModalVisible, setCEModalVisible] = useState(false);
-    const [isSectorModalVisible, setSectorModalVisible] = useState(false);
-    const [isModifyCEModalVisible, setModifyCEModalVisible] = useState(false);
-    const [isModifySectorModalVisible, setModifySectorModalVisible] = useState(false);
-    const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
-    const [isModifyEmployeeModalVisible, setModifyEmployeeModalVisible] = useState(false);
+    const [preSelectedCE, setPreSelectedCE] = useState(null);
+    const [preSelectedSector, setPreSelectedSector] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [searchText, setSearchText] = useState('');
 
-    useEffect(() => {
-        fetchEmployees();
-        fetchCEs();
-        fetchSectors();
+    const fetchData = useCallback(async (endpoint, setter, errorMessage) => {
+        try {
+            const response = await api.get(`http://localhost:8080/${endpoint}`);
+            setter(response.data);
+        } catch (error) {
+            message.error(errorMessage);
+        }
     }, []);
 
     const fetchEmployees = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/employees');
+            const response = await api.get('/employees');
+            console.log('Fetched employees:', response.data);
             setEmployees(response.data);
+            setFilteredEmployees(response.data);
         } catch (error) {
             console.error('Failed to fetch employees:', error);
+            message.error('Failed to fetch employees');
         }
     };
 
     const fetchCEs = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/ces');
+            const response = await api.get('/ces');
+            console.log('Fetched CEs:', response.data);
             setCEs(response.data);
         } catch (error) {
-            console.error('Failed to fetch CEs:', error);
+            console.error('Error fetching CEs:', error);
+            message.error('Failed to fetch CEs');
         }
-    };
+    }
 
     const fetchSectors = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/sectors');
+            const response = await api.get('/sectors');
+            console.log('Fetched sectors:', response.data);
             setSectors(response.data);
         } catch (error) {
-            console.error('Failed to fetch sectors:', error);
+            console.error('Error fetching sectors:', error);
+            message.error('Failed to fetch sectors');
         }
-    };
+    }
 
-    const handleMenuClick = (item, type) => {
-        if (type === 'ce') {
-            setSelectedCE(item);
-            setModifyCEModalVisible(true);
-        } else if (type === 'sector') {
-            setSelectedSector(item);
-            setModifySectorModalVisible(true);
-        } else if (type === 'employee') {
-            setSelectedEmployee(item);
-            setModifyEmployeeModalVisible(true);
-        }
-    };
-
-    const showDeleteConfirm = (item, type) => {
-        confirm({
-            title: `Are you sure you want to delete this ${type === 'ce' ? 'CE' : type === 'sector' ? 'sector' : 'employee'}?`,
-            icon: <ExclamationCircleOutlined/>,
-            content: 'This action cannot be undone.',
-            onOk: () => handleDelete(item, type),
-            onCancel() {
-                console.log('Cancel');
-            },
-        });
-    };
-
-    const handleDelete = async (item, type) => {
+    const fetchSkills = async () => {
         try {
-            if (type === 'ce') {
-                await axios.delete(`http://localhost:8080/delete_ce/${item.id}`);
-                message.success('CE deleted successfully');
-                fetchCEs();
-            } else if (type === 'sector') {
-                await axios.delete(`http://localhost:8080/delete_sector/${item.id}`);
-                message.success('Sector deleted successfully');
-                fetchSectors();
-            } else if (type === 'employee') {
-                await axios.delete(`http://localhost:8080/delete_employee/${item.id}`);
-                message.success('Employee deleted successfully');
-                fetchEmployees();
-            }
+            const response = await api.get('http://localhost:8080/skills');
+            setSkills(response.data);
         } catch (error) {
-            message.error('Failed to delete');
-            console.error('Failed to delete:', error);
+            message.error('Failed to fetch skills');
         }
-    };
+    }
 
+    useEffect(() => {
+        setLoading(true);
+        Promise.all([
+            fetchEmployees(),
+            fetchCEs(),
+            fetchSectors(),
+            fetchSkills(),
+        ]).then(() => setLoading(false));
+    }, [fetchData]);
 
-    const renderDropdown = (item, type) => {
-        let menuItems = [
-            <Menu.Item key="edit" icon={<EditOutlined/>} onClick={() => handleMenuClick(item, type)}>
-                Edit
-            </Menu.Item>,
-            <Menu.Item key="delete" icon={<DeleteOutlined/>} onClick={() => showDeleteConfirm(item, type)}>
-                Delete
-            </Menu.Item>,
-        ];
-
-        if (type === 'employee') {
-            menuItems.unshift(
-                <Menu.Item key="add" icon={<PlusOutlined/>} onClick={() => {
-                    setSelectedSector(selectedSector);
-                    setSelectedCE(selectedCE);
-                    setEmployeeModalVisible(true);
-                }}>
-                    Add
-                </Menu.Item>
-            );
-        }
-
-        return (
-            <Dropdown overlay={<Menu>{menuItems}</Menu>}>
-                <span className="dropdown-text">{item.name}</span>
-            </Dropdown>
+    const handleSearch = (value) => {
+        setSearchText(value);
+        const filtered = employees.filter(employee =>
+            employee.Name.toLowerCase().includes(value.toLowerCase()) ||
+            employee.CE.name.toLowerCase().includes(value.toLowerCase()) ||
+            employee.Sector.name.toLowerCase().includes(value.toLowerCase()) ||
+            employee.Skills.some(skill => skill.name.toLowerCase().includes(value.toLowerCase()))
         );
+        setFilteredEmployees(filtered);
     };
 
-    const resetEmployeeState = () => {
-        setSelectedEmployee(null);
-    };
-
-
-    const renderTableData = () => {
-        const data = ces.map((ce) => {
-            const row = {key: ce.id, ceName: ce.name};
-            sectors.forEach((sector) => {
-                row[sector.name] = employees.filter((emp) => emp.ce_id === ce.id && emp.sector_id === sector.id);
-            });
-            return row;
-        });
-
-        const columns = [
-            {
-                title: 'CE', dataIndex: 'ceName', key: 'ceName', render: (text, record) => (
-                    <div className="dropdown-container">
-                        {renderDropdown({name: text, id: record.key}, 'ce')}
-                    </div>
-                )
+    const showDeleteConfirm = (type, id) => {
+        Modal.confirm({
+            title: `Are you sure you want to delete this ${type}?`,
+            content: 'This action cannot be undone.',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDelete(type, id);
             },
-            ...sectors.map((sector) => ({
-                title: (
-                    <div className="dropdown-container">
-                        {renderDropdown(sector, 'sector')}
-                    </div>
-                ),
-                dataIndex: sector.name,
-                key: sector.id,
-                render: (text, record) => (
-                    <div className="table-row">
-                        {text && text.length > 0 ? text.map((employee, index) => (
-                            <Dropdown
-                                overlay={
-                                    <Menu>
-                                        <Menu.Item key="add" icon={<PlusOutlined/>} onClick={() => {
-                                            setSelectedSector(sector);
-                                            setSelectedCE(ces.find((ce) => ce.id === record.key));
-                                            resetEmployeeState();
-                                            setEmployeeModalVisible(true);
-                                        }}>
-                                            Add
-                                        </Menu.Item>
-                                        <Menu.Item key="edit" icon={<EditOutlined/>} onClick={() => {
-                                            setSelectedEmployee(employee);
-                                            setModifyEmployeeModalVisible(true);
-                                        }}>
-                                            Edit
-                                        </Menu.Item>
-                                        <Menu.Item key="delete" icon={<DeleteOutlined/>}
-                                                   onClick={() => showDeleteConfirm(employee, 'employee')}>
-                                            Delete
-                                        </Menu.Item>
-                                    </Menu>
-                                }
-                                key={index}
-                            >
-                                <span className="dropdown-text">{employee.name}</span>
-                            </Dropdown>
-                        )) : (
-                            <Button icon={<PlusOutlined/>} onClick={() => {
-                                setSelectedSector(sector);
-                                setSelectedCE(ces.find((ce) => ce.id === record.key));
-                                resetEmployeeState();
-                                setEmployeeModalVisible(true);
-                            }}/>
-                        )}
-                    </div>
-                )
-            })),
-        ];
-
-        return {data, columns};
+        });
     };
 
-    const {data, columns} = renderTableData();
+    const renderDropdown = (item, type, ceId, sectorId) => (
+        <Dropdown overlay={
+            <Menu>
+                <Menu.Item key="edit" icon={<EditOutlined/>} onClick={() => handleModalVisibility(type, true, item)}>
+                    Edit
+                </Menu.Item>
+                <Menu.Item key="delete" icon={<DeleteOutlined/>} onClick={() => showDeleteConfirm(type, item.id)}>
+                    Delete
+                </Menu.Item>
+            </Menu>
+        }>
+            <Tooltip title={`${type.charAt(0).toUpperCase() + type.slice(1)} options`}>
+                <span className={`${type}-button`}>{item.name}</span>
+            </Tooltip>
+        </Dropdown>
+    );
+
+    const refreshGrid = () => {
+        setLoading(true);
+        Promise.all([
+            fetchEmployees(),
+            fetchCEs(),
+            fetchSectors(),
+            fetchSkills(),
+        ]).then(() => setLoading(false));
+    };
+
+    const handleModalVisibility = (type, visible, item = null) => {
+        switch (type) {
+            case 'ce':
+                setCEModalVisible(visible);
+                setSelectedCE(item);
+                break;
+            case 'sector':
+                setSectorModalVisible(visible);
+                setSelectedSector(item);
+                break;
+            case 'employee':
+                if (item && item.ceId && item.sectorId) {
+                    setPreSelectedCE(item.ceId);
+                    setPreSelectedSector(item.sectorId);
+                    setSelectedEmployee(null);
+                } else if (item && item.id) {
+                    const fullEmployeeData = employees.find(emp => emp.ID === item.id);
+                    setSelectedEmployee(fullEmployeeData);
+                    setPreSelectedCE(null);
+                    setPreSelectedSector(null);
+                } else {
+                    setSelectedEmployee(null);
+                    setPreSelectedCE(null);
+                    setPreSelectedSector(null);
+                }
+                setEmployeeModalVisible(visible);
+                break;
+            default:
+                break;
+        }
+    };
+
+    const handleEmployeeSubmit = async (values) => {
+        try {
+            if (selectedEmployee && selectedEmployee.ID) {
+                await api.put(`/update_employee/${selectedEmployee.ID}`, values);
+                message.success('Employee updated successfully');
+            } else {
+                await api.post('/add_employee', values);
+                message.success('Employee added successfully');
+            }
+            setEmployeeModalVisible(false);
+            refreshGrid();
+        } catch (error) {
+            console.error('Failed to save employee:', error);
+            message.error('Failed to save employee');
+        }
+    };
+
+    const handleDelete = async (type, id) => {
+        try {
+            await api.delete(`http://localhost:8080/delete_${type}/${id}`);
+            message.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
+            refreshGrid();
+        } catch (error) {
+            message.error(`Failed to delete ${type}`);
+        }
+    };
+
+    const columns = [
+        {
+            title: 'CE',
+            dataIndex: 'ceName',
+            key: 'ceName',
+            render: (text, record) => renderDropdown({name: text, id: record.key}, 'ce'),
+            className: 'ce-column'
+        },
+        ...sectors.map(sector => ({
+            title: renderDropdown(sector, 'sector'),
+            dataIndex: sector.name,
+            key: sector.id,
+            render: (employees, record) => (
+                <div className="employee-cell">
+                    {employees && employees.length > 0 ? employees.map(employee => (
+                        renderDropdown(employee, 'employee', record.key, sector.id)
+                    )) : null}
+                    <Button
+                        icon={<PlusOutlined/>}
+                        onClick={() => handleModalVisibility('employee', true, {ceId: record.key, sectorId: sector.id})}
+                        className="add-employee-button"
+                    />
+                </div>
+            ),
+            className: 'sector-column'
+        })),
+    ];
+
+    const data = ces.map(ce => {
+        const row = {key: ce.id, ceName: ce.name};
+        sectors.forEach(sector => {
+            row[sector.name] = filteredEmployees.filter(emp =>
+                emp.CEID === ce.id && emp.SectorID === sector.id
+            ).map(emp => ({
+                id: emp.ID,
+                name: emp.Name,
+                skills: emp.Skills.map(skill => skill.name)
+            }));
+        });
+        return row;
+    });
 
     return (
         <div className="employee-grid">
-            <div className="header-buttons">
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => setCEModalVisible(true)}>
-                    Add CE
-                </Button>
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => setSectorModalVisible(true)}>
-                    Add Sector
-                </Button>
+            <div className="header-controls">
+                <div className="header-buttons">
+                    <Tooltip title="Add new CE">
+                        <Button type="primary" icon={<PlusOutlined/>} onClick={() => handleModalVisibility('ce', true)}>
+                            Add CE
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Add new Sector">
+                        <Button type="primary" icon={<PlusOutlined/>}
+                                onClick={() => handleModalVisibility('sector', true)}>
+                            Add Sector
+                        </Button>
+                    </Tooltip>
+                </div>
+                <Search
+                    placeholder="Search employees"
+                    allowClear
+                    enterButton={<SearchOutlined/>}
+                    size="large"
+                    onSearch={handleSearch}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    style={{width: 300}}
+                />
             </div>
-            <div className="table-responsive">
+            <Spin spinning={loading}>
                 <Table
                     dataSource={data}
                     columns={columns}
                     pagination={false}
                     scroll={{x: 'max-content'}}
-                    style={{tableLayout: 'fixed'}}
+                    bordered
+                    className="employee-table"
                 />
-            </div>
+            </Spin>
             <CEModal
                 visible={isCEModalVisible}
-                onClose={() => setCEModalVisible(false)}
-                fetchCEs={fetchCEs}
-            />
-            <ModifyCEModal
-                visible={isModifyCEModalVisible}
-                onClose={() => setModifyCEModalVisible(false)}
+                onClose={() => handleModalVisibility('ce', false)}
                 ce={selectedCE}
-                fetchCEs={fetchCEs}
+                onSubmit={() => fetchData('ces', setCEs, 'Failed to fetch CEs')}
             />
             <SectorModal
                 visible={isSectorModalVisible}
-                onClose={() => setSectorModalVisible(false)}
-                fetchSectors={fetchSectors}
-            />
-            <ModifySectorModal
-                visible={isModifySectorModalVisible}
-                onClose={() => setModifySectorModalVisible(false)}
+                onClose={() => handleModalVisibility('sector', false)}
                 sector={selectedSector}
-                fetchSectors={fetchSectors}
+                onSubmit={() => fetchData('sectors', setSectors, 'Failed to fetch sectors')}
             />
             <EmployeeModal
                 visible={isEmployeeModalVisible}
-                onClose={() => setEmployeeModalVisible(false)}
-                ce={selectedCE}
-                sector={selectedSector}
-                fetchEmployees={fetchEmployees}
-            />
-            <ModifyEmployeeModal
-                visible={isModifyEmployeeModalVisible}
-                onClose={() => setModifyEmployeeModalVisible(false)}
+                onClose={() => handleModalVisibility('employee', false)}
                 employee={selectedEmployee}
-                fetchEmployees={fetchEmployees}
+                ces={ces}
+                sectors={sectors}
+                skills={skills}
+                onSubmit={handleEmployeeSubmit}
+                preSelectedCE={preSelectedCE}
+                preSelectedSector={preSelectedSector}
             />
         </div>
     );

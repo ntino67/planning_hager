@@ -1,22 +1,89 @@
 package main
 
 import (
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"fmt"
+	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 	"log"
+	"os"
+	"planning_hager/models"
+
+	"gorm.io/driver/sqlserver"
+	"gorm.io/gorm"
+
+	"planning_hager/config"
+	"planning_hager/routes"
 )
 
 var db *gorm.DB
 
-func main() {
-	var err error
-	db, err = gorm.Open(sqlite.Open("planning.db"), &gorm.Config{})
+// Add this function to your main.go file
+func getCurrentDirectory() string {
+	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatal("failed to connect database")
+		log.Printf("Error getting current directory: %v", err)
+		return "unknown"
+	}
+	return dir
+}
+
+func createDefaultAdminUser(db *gorm.DB) {
+	var user models.User
+	if err := db.Where("username = ?", "admin").First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+			adminUser := models.User{
+				Username: "admin",
+				Password: string(hashedPassword),
+				Role:     "admin",
+			}
+			db.Create(&adminUser)
+			log.Println("Default admin user created")
+		}
+	}
+}
+
+func main() {
+	// At the beginning of your main() function
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Error loading .env file: %v", err)
+		log.Println("Current working directory:", getCurrentDirectory())
+		log.Println("Falling back to environment variables")
 	}
 
-	db.AutoMigrate(&Sector{}, &CE{}, &Skill{}, &Employee{}, &EmployeeSkill{})
+	// Azure SQL Database connection details
+	server := os.Getenv("DB_SERVER")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	database := os.Getenv("DB_NAME")
 
-	r := setupRouter()
-	r.Run(":8080")
+	// Build connection string
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+		server, user, password, port, database)
+
+	// Create connection pool
+	var err error
+	db, err = gorm.Open(sqlserver.Open(connString), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Error creating connection pool: ", err.Error())
+	}
+
+	createDefaultAdminUser(db)
+
+	// Run database migrations
+	config.MigrateDB(db)
+
+	// Initialize router
+	r := routes.SetupRouter(db)
+
+	// Start server
+	serverPort := os.Getenv("SERVER_PORT")
+	if serverPort == "" {
+		serverPort = "8080"
+	}
+	log.Printf("Server starting on port %s", serverPort)
+	if err := r.Run(":" + serverPort); err != nil {
+		log.Fatal("Error starting server: ", err.Error())
+	}
 }
