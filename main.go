@@ -3,13 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"golang.org/x/crypto/bcrypt"
-	"log"
-	"os"
-	"planning_hager/models"
-
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
+	"log"
+	"os"
 
 	"planning_hager/config"
 	"planning_hager/routes"
@@ -25,22 +22,6 @@ func getCurrentDirectory() string {
 		return "unknown"
 	}
 	return dir
-}
-
-func createDefaultAdminUser(db *gorm.DB) {
-	var user models.User
-	if err := db.Where("username = ?", "admin").First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-			adminUser := models.User{
-				Username: "admin",
-				Password: string(hashedPassword),
-				Role:     "admin",
-			}
-			db.Create(&adminUser)
-			log.Println("Default admin user created")
-		}
-	}
 }
 
 func main() {
@@ -68,8 +49,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error creating connection pool: ", err.Error())
 	}
-
-	createDefaultAdminUser(db)
 
 	// Run database migrations
 	config.MigrateDB(db)

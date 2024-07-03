@@ -3,12 +3,13 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"net/http"
 	"planning_hager/handlers"
 )
 
 func SetupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
 	// Set up CORS
 	r.Use(CORSMiddleware())
@@ -24,15 +25,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	protected.Use(handlers.AuthMiddleware())
 	{
 		protected.GET("/verify-token", handlers.VerifyToken)
-		protected.GET("/test-auth", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"message": "You are authenticated!"})
-		})
 		protected.GET("/planning", h.GetPlannings)
 		protected.GET("/employees", h.GetEmployees)
 		protected.GET("/sectors", h.GetSectors)
 		protected.GET("/ces", h.GetCEs)
 		protected.GET("/skills", h.GetSkills)
 		protected.GET("/employee_skills/:id", h.GetEmployeeSkills)
+		protected.GET("/sector_required_skills", h.GetSectorRequiredSkills)
 
 		// Admin only routes
 		admin := protected.Group("/")

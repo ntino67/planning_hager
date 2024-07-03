@@ -1,11 +1,15 @@
+// planning.go
+
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"planning_hager/models"
 )
 
@@ -13,18 +17,16 @@ func (h *Handler) GetPlannings(c *gin.Context) {
 	weekStr := c.Query("week")
 	week, err := strconv.Atoi(weekStr)
 	if err != nil {
+		log.Printf("Invalid week parameter: %v", err)
 		h.respondWithError(c, http.StatusBadRequest, "Invalid week parameter")
 		return
 	}
 
-	year := time.Now().Year()
-	startDate := getWeekStartDate(year, week)
-	endDate := startDate.AddDate(0, 0, 7)
-
 	var plannings []models.Planning
-	if err := h.DB.Preload("CE").Preload("Sector").Preload("Employee").
-		Where("date >= ? AND date < ?", startDate, endDate).
+	if err := h.DB.Preload("Employee").Preload("Sector").
+		Where("week = ?", week).
 		Find(&plannings).Error; err != nil {
+		log.Printf("Error fetching planning data: %v", err)
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch planning data")
 		return
 	}
@@ -34,35 +36,111 @@ func (h *Handler) GetPlannings(c *gin.Context) {
 }
 
 func (h *Handler) AddPlanning(c *gin.Context) {
-	var input models.Planning
+	var input struct {
+		Date       string `json:"date" binding:"required"`
+		Shift      string `json:"shift" binding:"required"`
+		SectorID   uint   `json:"sector_id" binding:"required"`
+		EmployeeID uint   `json:"employee_id" binding:"required"`
+		Status     string `json:"status" binding:"required"`
+	}
+
 	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Printf("Error binding JSON: %v", err)
+		log.Printf("Received input: %+v", input)
 		h.respondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := h.DB.Create(&input).Error; err != nil {
+	date, err := time.Parse("2006-01-02", input.Date)
+	if err != nil {
+		log.Printf("Error parsing date: %v", err)
+		h.respondWithError(c, http.StatusBadRequest, "Invalid date format")
+		return
+	}
+
+	_, week := date.ISOWeek()
+
+	planning := models.Planning{
+		Date:       date,
+		Week:       week,
+		Shift:      input.Shift,
+		SectorID:   input.SectorID,
+		EmployeeID: input.EmployeeID,
+		Status:     input.Status,
+	}
+
+	if err := h.DB.Create(&planning).Error; err != nil {
+		log.Printf("Error creating planning entry: %v", err)
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to create planning entry")
 		return
 	}
 
-	h.respondWithSuccess(c, http.StatusCreated, input)
+	// Preload the related data
+	if err := h.DB.Preload("Sector").Preload("Employee").First(&planning, planning.ID).Error; err != nil {
+		log.Printf("Error preloading related data: %v", err)
+		h.respondWithError(c, http.StatusInternalServerError, "Failed to load related data")
+		return
+	}
+
+	h.respondWithSuccess(c, http.StatusCreated, planning)
 }
 
 func (h *Handler) UpdatePlanning(c *gin.Context) {
 	id := c.Param("id")
-	var input models.Planning
+
+	var input struct {
+		Date       string `json:"date"`
+		Shift      string `json:"shift"`
+		SectorID   uint   `json:"sector_id"`
+		EmployeeID uint   `json:"employee_id"`
+		Status     string `json:"status"`
+	}
+
 	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Printf("Error binding JSON: %v", err)
 		h.respondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var planning models.Planning
 	if err := h.DB.First(&planning, id).Error; err != nil {
-		h.respondWithError(c, http.StatusNotFound, "Planning entry not found")
+		if err == gorm.ErrRecordNotFound {
+			h.respondWithError(c, http.StatusNotFound, "Planning entry not found")
+		} else {
+			log.Printf("Error fetching planning entry: %v", err)
+			h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch planning entry")
+		}
 		return
 	}
 
-	if err := h.DB.Model(&planning).Updates(input).Error; err != nil {
+	if input.Date != "" {
+		date, err := time.Parse("2006-01-02", input.Date)
+		if err != nil {
+			log.Printf("Error parsing date: %v", err)
+			h.respondWithError(c, http.StatusBadRequest, "Invalid date format")
+			return
+		}
+		planning.Date = date
+	}
+
+	if input.Shift != "" {
+		planning.Shift = input.Shift
+	}
+
+	if input.SectorID != 0 {
+		planning.SectorID = input.SectorID
+	}
+
+	if input.EmployeeID != 0 {
+		planning.EmployeeID = input.EmployeeID
+	}
+
+	if input.Status != "" {
+		planning.Status = input.Status
+	}
+
+	if err := h.DB.Save(&planning).Error; err != nil {
+		log.Printf("Error updating planning entry: %v", err)
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to update planning entry")
 		return
 	}
@@ -74,6 +152,7 @@ func (h *Handler) DeletePlanning(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.DB.Delete(&models.Planning{}, id).Error; err != nil {
+		log.Printf("Error deleting planning entry: %v", err)
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to delete planning entry")
 		return
 	}
@@ -104,7 +183,6 @@ func formatPlanningResponse(plannings []models.Planning) []gin.H {
 			"date":   p.Date,
 			"shift":  p.Shift,
 			"day":    p.Date.Format("Mon")[0:2],
-			"ce":     p.CE,
 			"sector": p.Sector,
 			"employee": gin.H{
 				"id":     p.Employee.ID,

@@ -32,8 +32,6 @@ type Skill struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }
 
-// models/employee.go
-
 type Employee struct {
 	gorm.Model
 	Name     string
@@ -52,9 +50,8 @@ type EmployeeSkill struct {
 type Planning struct {
 	gorm.Model
 	Date       time.Time
+	Week       int
 	Shift      string
-	CEID       uint
-	CE         CE `gorm:"foreignKey:CEID"`
 	SectorID   uint
 	Sector     Sector `gorm:"foreignKey:SectorID"`
 	EmployeeID uint
@@ -73,6 +70,11 @@ type Claims struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	jwt.RegisteredClaims
+}
+
+type SectorRequiredSkill struct {
+	SectorID uint `json:"sector_id"`
+	SkillID  uint `json:"skill_id"`
 }
 
 const (
