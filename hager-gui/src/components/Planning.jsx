@@ -80,8 +80,11 @@ const Planning = () => {
     };
 
     const isEmployeeCompetent = (employee, sector) => {
-        const employeeSkills = new Set(employee.Skills.map(skill => skill.id));
-        const requiredSkills = new Set(sector.RequiredSkills.map(skill => skill.id));
+        if (!employee || !sector) return false;
+
+        const employeeSkills = new Set(employee.Skills?.map(skill => skill.id) || []);
+        const requiredSkills = new Set(sector.RequiredSkills?.map(skill => skill.id) || []);
+
         return employeeSkills.size > 0 && requiredSkills.size > 0 &&
                [...employeeSkills].some(skillId => requiredSkills.has(skillId));
     };
