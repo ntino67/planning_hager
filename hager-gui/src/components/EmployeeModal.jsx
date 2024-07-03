@@ -1,5 +1,3 @@
-// EmployeeModal.jsx
-
 import React, { useEffect, useRef } from 'react';
 import { Modal, Form, Input, Select, message } from 'antd';
 
@@ -34,6 +32,9 @@ const EmployeeModal = ({ visible, onClose, employee, ces, sectors, skills, onSub
         console.log("Submitting employee data:", values);
         onSubmit(values);
     };
+
+    const filterSkillOption = (input, option) =>
+        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 
     return (
         <Modal
@@ -77,9 +78,14 @@ const EmployeeModal = ({ visible, onClose, employee, ces, sectors, skills, onSub
                     name="skills"
                     label="Skills"
                 >
-                    <Select mode="multiple">
+                    <Select
+                        mode="multiple"
+                        showSearch
+                        filterOption={filterSkillOption}
+                        optionFilterProp="children"
+                    >
                         {skills.map(skill => (
-                            <Option key={skill.id} value={skill.name}>{skill.name}</Option>
+                            <Option key={skill.id} value={skill.id}>{skill.name}</Option>
                         ))}
                     </Select>
                 </Form.Item>

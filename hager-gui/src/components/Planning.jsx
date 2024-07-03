@@ -79,6 +79,13 @@ const Planning = () => {
         return targetDate.toISOString().split('T')[0];
     };
 
+    const isEmployeeCompetent = (employee, sector) => {
+        const employeeSkills = new Set(employee.Skills.map(skill => skill.id));
+        const requiredSkills = new Set(sector.RequiredSkills.map(skill => skill.id));
+        return employeeSkills.size > 0 && requiredSkills.size > 0 &&
+               [...employeeSkills].some(skillId => requiredSkills.has(skillId));
+    };
+
     const columns = [
         {
             title: 'Day',
@@ -105,11 +112,13 @@ const Planning = () => {
             key: sector.id,
             render: (sectors, record) => {
                 const sectorData = sectors.find(s => s.id === sector.id);
-                const sectorEmployees = employees.filter(emp => emp.SectorID === sector.id);
+                const competentEmployees = employees.filter(emp =>
+                    emp.SectorID === sector.id && isEmployeeCompetent(emp, sector)
+                );
 
                 const menu = (
                     <Menu>
-                        {sectorEmployees.map(emp => (
+                        {competentEmployees.map(emp => (
                             <Menu.Item key={emp.id} onClick={() => handleAddEmployee(record.day, record.shift, sector.id, emp.id)}>
                                 {emp.name}
                             </Menu.Item>
