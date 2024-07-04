@@ -33,3 +33,7 @@
 .ant-table-row[data-row-key$="-N"] {
     background-color: #f6ffed;
 }
+
+.status-available { background-color: #e6fffa; }
+.status-unavailable { background-color: #fff5f5; }
+.status-assigned { background-color: #e6fffb; }

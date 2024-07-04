@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Dropdown, Menu, message, Select, Table, Tooltip} from 'antd';
-import {PlusOutlined} from '@ant-design/icons';
+import {Button, Dropdown, Menu, message, Modal, Select, Table, Tooltip} from 'antd';
+import {EditOutlined, PlusOutlined} from '@ant-design/icons';
 import api from '../utils/Api.jsx';
 import './Planning.css';
 
@@ -8,6 +8,20 @@ const {Option} = Select;
 
 const DAYS = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
 const SHIFTS = ['M', 'S', 'N'];
+const STATUS_COLORS = {
+    'Day shift': '#91cf50',
+    'Absent (Unplanned)': '#cc00ff',
+    'Absent (Planned)': '#00afee',
+    'Training': '#fdbf00',
+};
+
+const STATUS_OPTIONS = [
+    'Scheduled',
+    'Day shift',
+    'Absent (Unplanned)',
+    'Absent (Planned)',
+    'Training',
+];
 
 const Planning = () => {
     const [planningData, setPlanningData] = useState([]);
@@ -78,17 +92,17 @@ const Planning = () => {
     };
 
     const handleAddEmployee = async (day, shift, sectorId, employeeId) => {
-        console.log('Adding employee:', {day, shift, sectorId, employeeId, currentWeek});
         try {
             const date = getDateFromDayAndWeek(day, currentWeek);
             const payload = {
                 date,
+                week: currentWeek,
                 shift,
                 sector_id: parseInt(sectorId, 10),
-                employee_id: parseInt(employeeId, 10), // Ensure this is parsed as an integer
+                employee_id: parseInt(employeeId, 10),
                 status: 'Scheduled'
             };
-            console.log('Payload:', payload);
+
             const response = await api.post('/add_planning', payload);
             console.log('Employee added successfully:', response.data);
             message.success('Employee added to planning');
@@ -99,9 +113,69 @@ const Planning = () => {
         }
     };
 
+    const showEmployeeSelectionModal = (sectorId) => {
+        return new Promise((resolve) => {
+            const competentEmployees = employees.filter(emp =>
+                emp.SectorID === sectorId && isEmployeeCompetent(emp, sectorId)
+            );
+
+            Modal.confirm({
+                title: 'Select an employee',
+                content: (
+                    <Select style={{width: '100%'}}>
+                        {competentEmployees.map(emp => (
+                            <Option key={emp.ID} value={emp.ID}>{emp.Name}</Option>
+                        ))}
+                    </Select>
+                ),
+                onOk: (close) => {
+                    const selectedEmployeeId = document.querySelector('.ant-select-selection-item').getAttribute('title');
+                    close();
+                    resolve(selectedEmployeeId);
+                },
+                onCancel: () => resolve(null),
+            });
+        });
+    };
+
+    const handleStatusChange = async (planningId, newStatus) => {
+        try {
+            await api.put(`/update_planning/${planningId}`, {status: newStatus});
+            message.success('Status updated successfully');
+            fetchPlanningData();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+            message.error('Failed to update status');
+        }
+    };
+
+    const handleDeletePlanning = async (planningId) => {
+        try {
+            await api.delete(`/delete_planning/${planningId}`);
+            message.success('Planning entry deleted successfully');
+            fetchPlanningData();
+        } catch (error) {
+            console.error('Failed to delete planning entry:', error);
+            message.error('Failed to delete planning entry');
+        }
+    };
+
+    const showDeleteConfirm = (planningId) => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete this planning entry?',
+            content: 'This action cannot be undone.',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDeletePlanning(planningId);
+            },
+        });
+    };
+
     const getDateFromDayAndWeek = (day, week) => {
         const year = new Date().getFullYear();
-        const firstDayOfYear = new Date(year, 0, 1);
+        const firstDayOfYear = new Date(year, 0, 0);
         const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7;
         const firstMondayOfYear = new Date(year, 0, 1 + daysToFirstMonday);
         const targetDate = new Date(firstMondayOfYear.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
@@ -157,38 +231,57 @@ const Planning = () => {
             key: sector.id,
             render: (sectors, record) => {
                 const sectorData = sectors.find(s => s.id === sector.id);
-                // console.log('Checking employees for sector:', sector.name);
-                const competentEmployees = employees.filter(emp => {
-                    // console.log('Checking employee:', emp.Name, 'for sector:', sector.name);
-                    return emp.SectorID === sector.id && isEmployeeCompetent(emp, sector.id);
-                });
-                // console.log('Competent employees for sector', sector.name, ':', competentEmployees);
-
-                const menu = (
-                    <Menu>
-                        {competentEmployees.map(emp => (
-                            <Menu.Item key={emp.id}
-                                       onClick={() => handleAddEmployee(record.day, record.shift, sector.id, emp.ID)}>
-                                {emp.Name}
-                            </Menu.Item>
-                        ))}
-                    </Menu>
+                const competentEmployees = employees.filter(emp =>
+                    emp.SectorID === sector.id && isEmployeeCompetent(emp, sector.id)
                 );
 
                 if (sectorData && sectorData.employee) {
-                    return (
-                        <Tooltip title={`Status: ${sectorData.employee.status || 'N/A'}`}>
-                            <span>{sectorData.employee.Name}</span>
-                        </Tooltip>
+                    const backgroundColor = STATUS_COLORS[sectorData.status] || 'transparent';
+                    const menu = (
+                        <Menu>
+                            {STATUS_OPTIONS.map(status => (
+                                <Menu.Item
+                                    key={status}
+                                    onClick={() => handleStatusChange(sectorData.planningId, status)}
+                                >
+                                    {status}
+                                </Menu.Item>
+                            ))}
+                            <Menu.Divider/>
+                            <Menu.Item
+                                key="delete"
+                                onClick={() => showDeleteConfirm(sectorData.planningId)}
+                                danger
+                            >
+                                Delete
+                            </Menu.Item>
+                        </Menu>
                     );
-                } else {
+
                     return (
                         <Dropdown overlay={menu} trigger={['click']}>
-                            <Button
-                                icon={<PlusOutlined/>}
-                                size="small"
-                                onClick={e => e.stopPropagation()}
-                            />
+                            <Tooltip title={`Status: ${sectorData.status}`}>
+                <span style={{backgroundColor, cursor: 'pointer'}}>
+                  {sectorData.employee.name} <EditOutlined style={{marginLeft: 8}}/>
+                </span>
+                            </Tooltip>
+                        </Dropdown>
+                    );
+                } else {
+                    const menu = (
+                        <Menu>
+                            {competentEmployees.map(emp => (
+                                <Menu.Item key={emp.ID}
+                                           onClick={() => handleAddEmployee(record.day, record.shift, sector.id, emp.ID)}>
+                                    {emp.Name}
+                                </Menu.Item>
+                            ))}
+                        </Menu>
+                    );
+
+                    return (
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <Button icon={<PlusOutlined/>} size="small"/>
                         </Dropdown>
                     );
                 }
@@ -199,23 +292,25 @@ const Planning = () => {
     const data = DAYS.flatMap(day =>
         SHIFTS.map(shift => {
             const rowData = {day, shift, key: `${day}-${shift}`, sectors: []};
-            const dayShiftData = planningData.filter(entry =>
-                entry.day === day && entry.shift === shift
-            );
+            sectors.forEach(sector => {
+                const planningEntry = planningData.find(entry =>
+                    entry.weekday === day &&
+                    entry.shift === shift &&
+                    entry.sector.id === sector.id &&
+                    entry.week === currentWeek
+                );
 
-            if (dayShiftData.length > 0) {
-                rowData.ce = dayShiftData[0].ce;
-                rowData.sectors = sectors.map(sector => {
-                    const sectorData = dayShiftData.find(entry => entry.sector.id === sector.id);
-                    return sectorData ? {
+                if (planningEntry) {
+                    rowData.sectors.push({
                         id: sector.id,
-                        employee: sectorData.employee,
-                    } : {id: sector.id};
-                });
-            } else {
-                rowData.sectors = sectors.map(sector => ({id: sector.id}));
-            }
-
+                        employee: planningEntry.employee,
+                        status: planningEntry.status,
+                        planningId: planningEntry.id,
+                    });
+                } else {
+                    rowData.sectors.push({id: sector.id});
+                }
+            });
             return rowData;
         })
     );

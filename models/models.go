@@ -51,6 +51,8 @@ type Planning struct {
 	gorm.Model
 	Date       time.Time
 	Week       int
+	Year       int
+	Weekday    string `gorm:"->"` // This indicates it's a read-only field
 	Shift      string
 	SectorID   uint
 	Sector     Sector `gorm:"foreignKey:SectorID"`
