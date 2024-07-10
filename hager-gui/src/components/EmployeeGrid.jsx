@@ -4,6 +4,7 @@ import {DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined} from '@ant-d
 import CEModal from './CEModal';
 import SectorModal from './SectorModal';
 import EmployeeModal from './EmployeeModal';
+import ReservistModal from './ReservistModal';
 import './EmployeeGrid.css';
 import api from '../utils/Api.jsx';
 
@@ -12,19 +13,25 @@ const {Search} = Input;
 const EmployeeGrid = () => {
     const [employees, setEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
+    const [reservists, setReservists] = useState([]);
+    const [filteredReservists, setFilteredReservists] = useState([]);
     const [ces, setCEs] = useState([]);
     const [sectors, setSectors] = useState([]);
     const [skills, setSkills] = useState([]);
     const [isCEModalVisible, setCEModalVisible] = useState(false);
     const [isSectorModalVisible, setSectorModalVisible] = useState(false);
     const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
+    const [isReservistModalVisible, setReservistModalVisible] = useState(false);
     const [selectedCE, setSelectedCE] = useState(null);
     const [selectedSector, setSelectedSector] = useState(null);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [selectedReservist, setSelectedReservist] = useState(null);
     const [preSelectedCE, setPreSelectedCE] = useState(null);
     const [preSelectedSector, setPreSelectedSector] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState('');
+    const [reservistSearchText, setReservistSearchText] = useState('');
+
 
     const fetchData = useCallback(async (endpoint, setter, errorMessage) => {
         try {
@@ -46,6 +53,20 @@ const EmployeeGrid = () => {
             message.error('Failed to fetch employees');
         }
     };
+
+    const fetchReservists = useCallback(async () => {
+        try {
+            const response = await api.get('/reservists');
+            console.log('Fetched reservists:', response.data);
+            setReservists(response.data || []);
+            setFilteredReservists(response.data || []);
+        } catch (error) {
+            console.error('Failed to fetch reservists:', error);
+            message.error('Failed to fetch reservists');
+            setReservists([]);
+            setFilteredReservists([]);
+        }
+    }, []);
 
     const fetchCEs = async () => {
         try {
@@ -82,11 +103,21 @@ const EmployeeGrid = () => {
         setLoading(true);
         Promise.all([
             fetchEmployees(),
+            fetchReservists(),
             fetchCEs(),
             fetchSectors(),
             fetchSkills(),
         ]).then(() => setLoading(false));
     }, [fetchData]);
+
+    useEffect(() => {
+        const filtered = reservists.filter(r =>
+            r.name.toLowerCase().includes(reservistSearchText.toLowerCase()) ||
+            r.skills.some(s => s.name.toLowerCase().includes(reservistSearchText.toLowerCase()))
+        );
+        console.log('Filtered reservists:', filtered);
+        setFilteredReservists(filtered);
+    }, [reservists, reservistSearchText]);
 
     const handleSearch = (value) => {
         setSearchText(value);
@@ -97,6 +128,12 @@ const EmployeeGrid = () => {
             employee.Skills.some(skill => skill.name.toLowerCase().includes(value.toLowerCase()))
         );
         setFilteredEmployees(filtered);
+
+        const filteredRes = reservists.filter(reservist =>
+            reservist.Name.toLowerCase().includes(value.toLowerCase()) ||
+            reservist.Skills.some(skill => skill.name.toLowerCase().includes(value.toLowerCase()))
+        );
+        setFilteredReservists(filteredRes);
     };
 
     const showDeleteConfirm = (type, id) => {
@@ -132,11 +169,10 @@ const EmployeeGrid = () => {
     const refreshGrid = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/employees');
-            setEmployees(response.data);
+            await Promise.all([fetchEmployees(), fetchReservists()]);
         } catch (error) {
-            console.error('Failed to refresh employees:', error);
-            message.error('Failed to refresh employee data');
+            console.error('Failed to refresh grid:', error);
+            message.error('Failed to refresh data');
         } finally {
             setLoading(false);
         }
@@ -168,6 +204,15 @@ const EmployeeGrid = () => {
                     setPreSelectedSector(null);
                 }
                 setEmployeeModalVisible(visible);
+                break;
+            case 'reservist':
+                if (item) {
+                    // Directly use the item as it already has the correct structure
+                    setSelectedReservist(item);
+                } else {
+                    setSelectedReservist(null);
+                }
+                setReservistModalVisible(visible);
                 break;
             default:
                 break;
@@ -219,6 +264,24 @@ const EmployeeGrid = () => {
         }
     };
 
+    const handleReservistSubmit = async (values) => {
+        console.log('Submitting reservist data:', values);
+        try {
+            if (selectedReservist) {
+                await api.put(`/update_reservist/${selectedReservist.id}`, values);
+                message.success('Reservist updated successfully');
+            } else {
+                await api.post('/add_reservist', values);
+                message.success('Reservist added successfully');
+            }
+            setReservistModalVisible(false);
+            await fetchReservists();
+        } catch (error) {
+            console.error('Failed to save reservist:', error.response?.data || error.message);
+            message.error('Failed to save reservist: ' + (error.response?.data?.error || error.message));
+        }
+    };
+
     const columns = [
         {
             title: 'CE',
@@ -261,6 +324,25 @@ const EmployeeGrid = () => {
         return row;
     });
 
+    const reservistColumns = [
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+            render: (text, record) => renderDropdown(record, 'reservist'),
+        },
+        {
+            title: 'Skills',
+            dataIndex: 'skills',
+            key: 'skills',
+            render: (skills) => (
+                <span className="reservist-skills">
+                    {skills && Array.isArray(skills) ? skills.map(skill => skill.name).join(', ') : ''}
+                </span>
+            ),
+        },
+    ];
+
     return (
         <Spin spinning={loading} tip="Updating data...">
             <div className="employee-grid">
@@ -280,7 +362,7 @@ const EmployeeGrid = () => {
                         </Tooltip>
                     </div>
                     <Search
-                        placeholder="Search employees"
+                        placeholder="Search employees and reservists"
                         allowClear
                         enterButton={<SearchOutlined/>}
                         size="large"
@@ -297,6 +379,35 @@ const EmployeeGrid = () => {
                         scroll={{x: 'max-content'}}
                         bordered
                         className="employee-table"
+                    />
+                    <h2 style={{marginTop: '20px'}}>Reservists</h2>
+                    <div className="header-controls">
+                        <div className="header-buttons">
+                            <Tooltip title="Add new Reservist">
+                                <Button type="primary" icon={<PlusOutlined/>}
+                                        onClick={() => handleModalVisibility('reservist', true)}>
+                                    Add Reservist
+                                </Button>
+                            </Tooltip>
+                        </div>
+                        <Search
+                            placeholder="Search reservists"
+                            allowClear
+                            enterButton={<SearchOutlined/>}
+                            size="large"
+                            onSearch={setReservistSearchText}
+                            onChange={(e) => setReservistSearchText(e.target.value)}
+                            style={{width: 300}}
+                        />
+                    </div>
+                    <Table
+                        dataSource={filteredReservists}
+                        columns={reservistColumns}
+                        rowKey="id"
+                        pagination={false}
+                        scroll={{x: 'max-content'}}
+                        bordered
+                        className="reservist-table"
                     />
                 </Spin>
                 <CEModal
@@ -322,6 +433,13 @@ const EmployeeGrid = () => {
                     preSelectedCE={preSelectedCE}
                     preSelectedSector={preSelectedSector}
                 />
+                <ReservistModal
+            visible={isReservistModalVisible}
+            onClose={() => setReservistModalVisible(false)}
+            reservist={selectedReservist}
+            skills={skills}
+            onSubmit={handleReservistSubmit}
+        />
             </div>
         </Spin>
     );

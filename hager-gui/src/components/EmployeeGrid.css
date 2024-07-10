@@ -66,3 +66,74 @@
 .employee-cell:hover .add-employee-button {
     opacity: 1;
 }
+
+/* Reservist table styles */
+.reservist-table .ant-table-thead > tr > th {
+    background-color: #f0f2f5;
+    font-weight: bold;
+}
+
+.reservist-table .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.reservist-table .ant-table-tbody > tr:hover > td {
+    background-color: #e6f7ff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+td.ant-table-cell .reservist-button, td.ant-table-cell .reservist-skills {
+    display: flex;
+    align-items: flex-start;
+}
+
+.reservist-button {
+    color: #1890ff;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.reservist-button:hover {
+    color: #40a9ff;
+}
+
+.reservist-skills {
+    color: #595959;
+}
+
+.reservist-table .ant-table-cell {
+    vertical-align: middle;
+}
+
+/* Ensure the table takes full width */
+.reservist-table {
+    width: auto;
+    max-width: 800px;
+}
+
+/* Add some spacing between columns */
+.reservist-table .ant-table-thead > tr > th,
+.reservist-table .ant-table-tbody > tr > td {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* Style for the dropdown menu */
+.ant-dropdown-menu-item {
+    padding: 8px 16px;
+}
+
+.ant-dropdown-menu-item:hover {
+    background-color: #e6f7ff;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .reservist-table .ant-table-thead > tr > th,
+    .reservist-table .ant-table-tbody > tr > td {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}

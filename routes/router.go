@@ -58,6 +58,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			admin.POST("/update_planning_shift_type", h.UpdatePlanningShiftType)
 			admin.POST("/populate_yearly_planning", h.PopulateYearlyPlanning)
 			admin.POST("/bulk_update_planning", h.BulkUpdatePlanning)
+			admin.GET("/reservists", h.GetReservists)
+			admin.POST("/add_reservist", h.AddReservist)
+			admin.PUT("/update_reservist/:id", h.UpdateReservist)
+			admin.DELETE("/delete_reservist/:id", h.DeleteReservist)
 		}
 	}
 

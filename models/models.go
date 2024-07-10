@@ -80,3 +80,12 @@ type SectorRequiredSkill struct {
 	SectorID uint `json:"sector_id"`
 	SkillID  uint `json:"skill_id"`
 }
+
+type Reservist struct {
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	Name      string         `gorm:"not null" json:"name"`
+	Skills    []Skill        `gorm:"many2many:reservist_skills;" json:"skills"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+}
