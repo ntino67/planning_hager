@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Button, Dropdown, Menu, message, Modal, Select, Table, Tooltip} from 'antd';
 import {EditOutlined, PlusOutlined} from '@ant-design/icons';
 import api from '../utils/Api.jsx';
+import {generateShiftSchedule} from '../utils/shift.jsx';
 import './Planning.css';
 
 const {Option} = Select;
@@ -14,7 +15,6 @@ const STATUS_COLORS = {
     'Absent (Planned)': '#00afee',
     'Training': '#fdbf00',
 };
-
 const STATUS_OPTIONS = [
     'Scheduled',
     'Day shift',
@@ -30,6 +30,8 @@ const Planning = () => {
     const [sectors, setSectors] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [sectorRequiredSkills, setSectorRequiredSkills] = useState({});
+    const [ces, setCEs] = useState([]);
+    const [shiftType, setShiftType] = useState('4x8 L');
 
 
     useEffect(() => {
@@ -37,14 +39,17 @@ const Planning = () => {
         fetchSectors();
         fetchEmployees();
         fetchSectorRequiredSkills()
+        fetchCEs();
     }, [currentWeek]);
 
     const fetchPlanningData = async () => {
         setLoading(true);
         try {
             const response = await api.get(`/planning?week=${currentWeek}`);
+            console.log('Fetched planning data:', response.data);
             setPlanningData(response.data);
         } catch (error) {
+            console.error('Failed to fetch planning data:', error);
             message.error('Failed to fetch planning data');
         } finally {
             setLoading(false);
@@ -91,6 +96,16 @@ const Planning = () => {
         }
     };
 
+    const fetchCEs = async () => {
+        try {
+            const response = await api.get('/ces');
+            setCEs(response.data);
+        } catch (error) {
+            console.error('Failed to fetch CEs:', error);
+            message.error('Failed to fetch CEs');
+        }
+    };
+
     const handleAddEmployee = async (day, shift, sectorId, employeeId) => {
         try {
             const date = getDateFromDayAndWeek(day, currentWeek);
@@ -106,36 +121,71 @@ const Planning = () => {
             const response = await api.post('/add_planning', payload);
             console.log('Employee added successfully:', response.data);
             message.success('Employee added to planning');
-            fetchPlanningData();
+            fetchPlanningData(); // Refresh the planning data
         } catch (error) {
             console.error('Failed to add employee:', error.response?.data || error.message);
             message.error('Failed to add employee to planning');
         }
     };
 
-    const showEmployeeSelectionModal = (sectorId) => {
-        return new Promise((resolve) => {
-            const competentEmployees = employees.filter(emp =>
-                emp.SectorID === sectorId && isEmployeeCompetent(emp, sectorId)
-            );
+    const handleAddCE = async (day, shift, ceId) => {
+        try {
+            const schedule = generateShiftSchedule(ceId, currentWeek, shiftType);
 
-            Modal.confirm({
-                title: 'Select an employee',
-                content: (
-                    <Select style={{width: '100%'}}>
-                        {competentEmployees.map(emp => (
-                            <Option key={emp.ID} value={emp.ID}>{emp.Name}</Option>
-                        ))}
-                    </Select>
-                ),
-                onOk: (close) => {
-                    const selectedEmployeeId = document.querySelector('.ant-select-selection-item').getAttribute('title');
-                    close();
-                    resolve(selectedEmployeeId);
-                },
-                onCancel: () => resolve(null),
-            });
+            for (const [scheduleDay, scheduleShift] of Object.entries(schedule)) {
+                const date = getDateFromDayAndWeek(scheduleDay, currentWeek);
+                const payload = {
+                    date,
+                    week: currentWeek,
+                    shift: scheduleShift,
+                    ce_id: parseInt(ceId, 10),
+                    status: 'Scheduled'
+                };
+
+                await api.post('/add_ce_planning', payload);
+            }
+
+            message.success('CE and team added to planning');
+            fetchPlanningData();
+        } catch (error) {
+            console.error('Failed to add CE and team:', error.response?.data || error.message);
+            message.error('Failed to add CE and team to planning');
+        }
+    };
+
+    const handleCEStatusChange = async (planningId, newStatus) => {
+        try {
+            await api.put(`/update_ce_planning/${planningId}`, {status: newStatus});
+            message.success('CE status updated successfully');
+            fetchPlanningData();
+        } catch (error) {
+            console.error('Failed to update CE status:', error);
+            message.error('Failed to update CE status');
+        }
+    };
+
+    const showDeleteConfirmCE = (planningId) => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete this CE planning entry?',
+            content: 'This will also remove all associated employee entries.',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDeleteCEPlanning(planningId);
+            },
         });
+    };
+
+    const handleDeleteCEPlanning = async (planningId) => {
+        try {
+            await api.delete(`/delete_ce_planning/${planningId}`);
+            message.success('CE planning entry deleted successfully');
+            fetchPlanningData();
+        } catch (error) {
+            console.error('Failed to delete CE planning entry:', error);
+            message.error('Failed to delete CE planning entry');
+        }
     };
 
     const handleStatusChange = async (planningId, newStatus) => {
@@ -205,6 +255,18 @@ const Planning = () => {
         return isCompetent;
     };
 
+    const handleShiftTypeChange = async (value) => {
+        setShiftType(value);
+        try {
+            await api.post('/update_planning_shift_type', {week: currentWeek, shiftType: value});
+            message.success('Shift type updated successfully');
+            fetchPlanningData(); // Refresh the planning data
+        } catch (error) {
+            console.error('Failed to update shift type:', error);
+            message.error('Failed to update shift type');
+        }
+    };
+
     const columns = [
         {
             title: 'Day',
@@ -222,8 +284,61 @@ const Planning = () => {
             title: 'CE',
             dataIndex: 'ce',
             key: 'ce',
-            width: 120,
-            render: (ce) => ce ? ce.name : '-',
+            render: (ce, record) => {
+                if (ce) {
+                    const menu = (
+                        <Menu>
+                            {STATUS_OPTIONS.map(status => (
+                                <Menu.Item
+                                    key={status}
+                                    onClick={() => handleCEStatusChange(record.planningId, status)}
+                                >
+                                    {status}
+                                </Menu.Item>
+                            ))}
+                            <Menu.Divider/>
+                            <Menu.Item
+                                key="delete"
+                                onClick={() => showDeleteConfirmCE(record.planningId)}
+                                danger
+                            >
+                                Delete
+                            </Menu.Item>
+                        </Menu>
+                    );
+
+                    return (
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <Tooltip title={`Status: ${ce.status || 'Not set'}`}>
+                    <span style={{
+                        cursor: 'pointer',
+                        backgroundColor: STATUS_COLORS[ce.status] || 'transparent',
+                        padding: '2px 4px',
+                        borderRadius: '4px'
+                    }}>
+                        {ce.name} <EditOutlined style={{marginLeft: 8}}/>
+                    </span>
+                            </Tooltip>
+                        </Dropdown>
+                    );
+                } else {
+                    const menu = (
+                        <Menu>
+                            {ces.map(ce => (
+                                <Menu.Item key={ce.id} onClick={() => handleAddCE(record.day, record.shift, ce.id)}>
+                                    {ce.name}
+                                </Menu.Item>
+                            ))}
+                        </Menu>
+                    );
+
+                    return (
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <Button icon={<PlusOutlined/>} size="small"/>
+                        </Dropdown>
+                    );
+                }
+            },
         },
         ...sectors.map(sector => ({
             title: sector.name,
@@ -232,7 +347,7 @@ const Planning = () => {
             render: (sectors, record) => {
                 const sectorData = sectors.find(s => s.id === sector.id);
                 const competentEmployees = employees.filter(emp =>
-                    emp.SectorID === sector.id && isEmployeeCompetent(emp, sector.id)
+                    isEmployeeCompetent(emp, sector.id)
                 );
 
                 if (sectorData && sectorData.employee) {
@@ -261,9 +376,14 @@ const Planning = () => {
                     return (
                         <Dropdown overlay={menu} trigger={['click']}>
                             <Tooltip title={`Status: ${sectorData.status}`}>
-                <span style={{backgroundColor, cursor: 'pointer'}}>
-                  {sectorData.employee.name} <EditOutlined style={{marginLeft: 8}}/>
-                </span>
+            <span style={{
+                cursor: 'pointer',
+                backgroundColor: STATUS_COLORS[sectorData.status] || 'transparent',
+                padding: '2px 4px',
+                borderRadius: '4px'
+            }}>
+              {sectorData.employee.name} <EditOutlined style={{marginLeft: 8}}/>
+            </span>
                             </Tooltip>
                         </Dropdown>
                     );
@@ -292,41 +412,56 @@ const Planning = () => {
     const data = DAYS.flatMap(day =>
         SHIFTS.map(shift => {
             const rowData = {day, shift, key: `${day}-${shift}`, sectors: []};
-            sectors.forEach(sector => {
-                const planningEntry = planningData.find(entry =>
-                    entry.weekday === day &&
-                    entry.shift === shift &&
-                    entry.sector.id === sector.id &&
-                    entry.week === currentWeek
-                );
+            const dayShiftData = planningData.filter(entry =>
+                entry.day === day && entry.shift === shift
+            );
 
-                if (planningEntry) {
-                    rowData.sectors.push({
-                        id: sector.id,
-                        employee: planningEntry.employee,
-                        status: planningEntry.status,
-                        planningId: planningEntry.id,
-                    });
-                } else {
-                    rowData.sectors.push({id: sector.id});
+            if (dayShiftData.length > 0) {
+                const ceEntry = dayShiftData.find(entry => entry.ce);
+                if (ceEntry) {
+                    rowData.ce = {
+                        ...ceEntry.ce,
+                        status: ceEntry.status // Add this line
+                    };
+                    rowData.planningId = ceEntry.id;
                 }
-            });
+                rowData.sectors = sectors.map(sector => {
+                    const sectorData = dayShiftData.find(entry => entry.sector && entry.sector.id === sector.id);
+                    return sectorData ? {
+                        id: sector.id,
+                        employee: sectorData.employee,
+                        status: sectorData.status,
+                        planningId: sectorData.id,
+                    } : {id: sector.id};
+                });
+            } else {
+                rowData.sectors = sectors.map(sector => ({id: sector.id}));
+            }
+
             return rowData;
         })
     );
 
     return (
         <div className="planning-container">
-            <h1>Planning</h1>
             <div className="planning-controls">
                 <Select
                     value={currentWeek}
                     onChange={setCurrentWeek}
-                    style={{width: 200, marginRight: 16}}
+                    style={{width: 120}}
                 >
                     {[...Array(52)].map((_, i) => (
                         <Option key={i + 1} value={i + 1}>Week {i + 1}</Option>
                     ))}
+                </Select>
+                <Select
+                    value={shiftType}
+                    onChange={handleShiftTypeChange}
+                    style={{width: 120, marginLeft: 16}}
+                >
+                    <Option value="4x8 L">4x8 Long</Option>
+                    <Option value="4x8 N">4x8 Normal</Option>
+                    <Option value="4x8 C">4x8 Short</Option>
                 </Select>
                 <Button onClick={() => setCurrentWeek(prev => Math.max(1, prev - 1))}>
                     Previous Week

@@ -52,6 +52,12 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			admin.POST("/add_planning", h.AddPlanning)
 			admin.PUT("/update_planning/:id", h.UpdatePlanning)
 			admin.DELETE("/delete_planning/:id", h.DeletePlanning)
+			admin.POST("/add_ce_planning", h.AddCEPlanning)
+			admin.PUT("/update_ce_planning/:id", h.UpdateCEPlanning)
+			admin.DELETE("/delete_ce_planning/:id", h.DeleteCEPlanning)
+			admin.POST("/update_planning_shift_type", h.UpdatePlanningShiftType)
+			admin.POST("/populate_yearly_planning", h.PopulateYearlyPlanning)
+			admin.POST("/bulk_update_planning", h.BulkUpdatePlanning)
 		}
 	}
 

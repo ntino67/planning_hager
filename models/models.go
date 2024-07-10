@@ -52,12 +52,14 @@ type Planning struct {
 	Date       time.Time
 	Week       int
 	Year       int
-	Weekday    string `gorm:"->"` // This indicates it's a read-only field
+	Weekday    string `gorm:"->"`
 	Shift      string
-	SectorID   uint
-	Sector     Sector `gorm:"foreignKey:SectorID"`
-	EmployeeID uint
-	Employee   Employee `gorm:"foreignKey:EmployeeID"`
+	CEID       *uint
+	CE         *CE `gorm:"foreignKey:CEID"`
+	SectorID   *uint
+	Sector     *Sector `gorm:"foreignKey:SectorID"`
+	EmployeeID *uint
+	Employee   *Employee `gorm:"foreignKey:EmployeeID"`
 	Status     string
 }
 
@@ -78,9 +80,3 @@ type SectorRequiredSkill struct {
 	SectorID uint `json:"sector_id"`
 	SkillID  uint `json:"skill_id"`
 }
-
-const (
-	StatusAvailable   = "available"
-	StatusUnavailable = "unavailable"
-	StatusAssigned    = "assigned"
-)

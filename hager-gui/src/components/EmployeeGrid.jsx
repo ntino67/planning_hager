@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Dropdown, Input, Menu, message, Modal, Spin, Table, Tooltip } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Button, Dropdown, Input, Menu, message, Modal, Spin, Table, Tooltip} from 'antd';
+import {DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons';
 import CEModal from './CEModal';
 import SectorModal from './SectorModal';
 import EmployeeModal from './EmployeeModal';
 import './EmployeeGrid.css';
 import api from '../utils/Api.jsx';
 
-const { Search } = Input;
+const {Search} = Input;
 
 const EmployeeGrid = () => {
     const [employees, setEmployees] = useState([]);
@@ -129,14 +129,17 @@ const EmployeeGrid = () => {
         </Dropdown>
     );
 
-    const refreshGrid = () => {
+    const refreshGrid = async () => {
         setLoading(true);
-        Promise.all([
-            fetchEmployees(),
-            fetchCEs(),
-            fetchSectors(),
-            fetchSkills(),
-        ]).then(() => setLoading(false));
+        try {
+            const response = await api.get('/employees');
+            setEmployees(response.data);
+        } catch (error) {
+            console.error('Failed to refresh employees:', error);
+            message.error('Failed to refresh employee data');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleModalVisibility = (type, visible, item = null) => {
@@ -172,19 +175,37 @@ const EmployeeGrid = () => {
     };
 
     const handleEmployeeSubmit = async (values) => {
+        setLoading(true)
         try {
-            if (selectedEmployee && selectedEmployee.ID) {
-                await api.put(`/update_employee/${selectedEmployee.ID}`, values);
-                message.success('Employee updated successfully');
+            const payload = {};
+            if (values.name) payload.name = values.name;
+            if (values.ce_id) payload.ce_id = values.ce_id;
+            if (values.sector_id) payload.sector_id = values.sector_id;
+            if (values.skills && values.skills.length > 0) payload.skills = values.skills;
+
+            const response = await api.put(`/update_employee/${selectedEmployee.ID}`, payload);
+
+            if (response.data.requiresSwap) {
+                const confirmed = await showSwapConfirmation(response.data.existingEmployee);
+                if (confirmed) {
+                    const swapResponse = await api.put(`/update_employee/${selectedEmployee.ID}`, {
+                        ...payload,
+                        swap: true
+                    });
+                    message.success('Employees swapped successfully');
+                    setEmployeeModalVisible(false);
+                    await refreshGrid();
+                }
             } else {
-                await api.post('/add_employee', values);
-                message.success('Employee added successfully');
+                message.success('Employee updated successfully');
+                setEmployeeModalVisible(false);
+                await refreshGrid();
             }
-            setEmployeeModalVisible(false);
-            refreshGrid();
         } catch (error) {
-            console.error('Failed to save employee:', error);
-            message.error('Failed to save employee');
+            console.error('Failed to update employee:', error);
+            message.error('Failed to update employee');
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -241,65 +262,68 @@ const EmployeeGrid = () => {
     });
 
     return (
-        <div className="employee-grid">
-            <div className="header-controls">
-                <div className="header-buttons">
-                    <Tooltip title="Add new CE">
-                        <Button type="primary" icon={<PlusOutlined/>} onClick={() => handleModalVisibility('ce', true)}>
-                            Add CE
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="Add new Sector">
-                        <Button type="primary" icon={<PlusOutlined/>}
-                                onClick={() => handleModalVisibility('sector', true)}>
-                            Add Sector
-                        </Button>
-                    </Tooltip>
+        <Spin spinning={loading} tip="Updating data...">
+            <div className="employee-grid">
+                <div className="header-controls">
+                    <div className="header-buttons">
+                        <Tooltip title="Add new CE">
+                            <Button type="primary" icon={<PlusOutlined/>}
+                                    onClick={() => handleModalVisibility('ce', true)}>
+                                Add CE
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title="Add new Sector">
+                            <Button type="primary" icon={<PlusOutlined/>}
+                                    onClick={() => handleModalVisibility('sector', true)}>
+                                Add Sector
+                            </Button>
+                        </Tooltip>
+                    </div>
+                    <Search
+                        placeholder="Search employees"
+                        allowClear
+                        enterButton={<SearchOutlined/>}
+                        size="large"
+                        onSearch={handleSearch}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        style={{width: 300}}
+                    />
                 </div>
-                <Search
-                    placeholder="Search employees"
-                    allowClear
-                    enterButton={<SearchOutlined/>}
-                    size="large"
-                    onSearch={handleSearch}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    style={{width: 300}}
+                <Spin spinning={loading}>
+                    <Table
+                        dataSource={data}
+                        columns={columns}
+                        pagination={false}
+                        scroll={{x: 'max-content'}}
+                        bordered
+                        className="employee-table"
+                    />
+                </Spin>
+                <CEModal
+                    visible={isCEModalVisible}
+                    onClose={() => handleModalVisibility('ce', false)}
+                    ce={selectedCE}
+                    onSubmit={() => fetchData('ces', setCEs, 'Failed to fetch CEs')}
+                />
+                <SectorModal
+                    visible={isSectorModalVisible}
+                    onClose={() => handleModalVisibility('sector', false)}
+                    sector={selectedSector}
+                    onSubmit={() => fetchData('sectors', setSectors, 'Failed to fetch sectors')}
+                />
+                <EmployeeModal
+                    visible={isEmployeeModalVisible}
+                    onClose={() => handleModalVisibility('employee', false)}
+                    employee={selectedEmployee}
+                    ces={ces}
+                    sectors={sectors}
+                    skills={skills}
+                    onSubmit={handleEmployeeSubmit}
+                    preSelectedCE={preSelectedCE}
+                    preSelectedSector={preSelectedSector}
                 />
             </div>
-            <Spin spinning={loading}>
-                <Table
-                    dataSource={data}
-                    columns={columns}
-                    pagination={false}
-                    scroll={{x: 'max-content'}}
-                    bordered
-                    className="employee-table"
-                />
-            </Spin>
-            <CEModal
-                visible={isCEModalVisible}
-                onClose={() => handleModalVisibility('ce', false)}
-                ce={selectedCE}
-                onSubmit={() => fetchData('ces', setCEs, 'Failed to fetch CEs')}
-            />
-            <SectorModal
-                visible={isSectorModalVisible}
-                onClose={() => handleModalVisibility('sector', false)}
-                sector={selectedSector}
-                onSubmit={() => fetchData('sectors', setSectors, 'Failed to fetch sectors')}
-            />
-            <EmployeeModal
-                visible={isEmployeeModalVisible}
-                onClose={() => handleModalVisibility('employee', false)}
-                employee={selectedEmployee}
-                ces={ces}
-                sectors={sectors}
-                skills={skills}
-                onSubmit={handleEmployeeSubmit}
-                preSelectedCE={preSelectedCE}
-                preSelectedSector={preSelectedSector}
-            />
-        </div>
+        </Spin>
     );
 };
 
