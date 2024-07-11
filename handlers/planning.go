@@ -325,60 +325,52 @@ func (h *Handler) UpdatePlanningShiftType(c *gin.Context) {
 		return
 	}
 
-	// Start a transaction
 	tx := h.DB.Begin()
 
-	// Get the start date of the week
 	year := time.Now().Year()
 	startDate := getWeekStartDate(year, input.Week)
 
-	// Define shifts to remove for each type
-	shiftsToRemove := map[string][]struct {
-		DayOffset int
-		Shift     string
-	}{
-		"4x8 N": {{6, "N"}},           // Sunday night
-		"4x8 C": {{6, "N"}, {5, "M"}}, // Sunday night and Saturday morning
+	// Remove existing entries for Saturday morning and Sunday night
+	if err := tx.Where("week = ? AND (date = ? OR date = ?) AND (shift = ? OR shift = ?)",
+		input.Week,
+		startDate.AddDate(0, 0, 5), // Saturday
+		startDate.AddDate(0, 0, 6), // Sunday
+		"M", "N").Delete(&models.Planning{}).Error; err != nil {
+		tx.Rollback()
+		h.respondWithError(c, http.StatusInternalServerError, "Failed to remove existing entries")
+		return
 	}
 
-	// Remove shifts based on shift type
-	if shifts, ok := shiftsToRemove[input.ShiftType]; ok {
-		for _, s := range shifts {
-			shiftDate := startDate.AddDate(0, 0, s.DayOffset)
-			if err := tx.Where("date = ? AND shift = ? AND week = ?", shiftDate, s.Shift, input.Week).Delete(&models.Planning{}).Error; err != nil {
-				tx.Rollback()
-				h.respondWithError(c, http.StatusInternalServerError, "Failed to update planning")
-				return
-			}
-		}
-	}
+	saturdayCEID, sundayCEID := getCEsForWeek(input.Week)
 
-	// If switching to 4x8 L, we need to add back the removed shifts
-	if input.ShiftType == "4x8 L" {
-		// Get all CEs with their employees
-		var ces []models.CE
-		if err := tx.Preload("Employees").Find(&ces).Error; err != nil {
+	switch input.ShiftType {
+	case "4x8 L":
+		// Add Saturday morning shift
+		if err := addShiftWithCEAndTeam(tx, startDate.AddDate(0, 0, 5), input.Week, "M", saturdayCEID); err != nil {
 			tx.Rollback()
-			h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch CEs and employees")
+			h.respondWithError(c, http.StatusInternalServerError, "Failed to add Saturday morning shift")
 			return
 		}
 
-		// Add back Sunday night shift
-		if err := addShiftWithTeam(tx, startDate.AddDate(0, 0, 6), input.Week, "N", ces); err != nil {
+		// Add Sunday night shift
+		if err := addShiftWithCEAndTeam(tx, startDate.AddDate(0, 0, 6), input.Week, "N", sundayCEID); err != nil {
 			tx.Rollback()
 			h.respondWithError(c, http.StatusInternalServerError, "Failed to add Sunday night shift")
 			return
 		}
 
-		// Add back Saturday morning shift
-		if err := addShiftWithTeam(tx, startDate.AddDate(0, 0, 5), input.Week, "M", ces); err != nil {
+	case "4x8 N":
+		// Add only Saturday morning shift
+		if err := addShiftWithCEAndTeam(tx, startDate.AddDate(0, 0, 5), input.Week, "M", saturdayCEID); err != nil {
 			tx.Rollback()
 			h.respondWithError(c, http.StatusInternalServerError, "Failed to add Saturday morning shift")
 			return
 		}
+
+	case "4x8 C":
+		// No additional shifts to add
 	}
 
-	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to commit changes")
 		return
@@ -387,38 +379,58 @@ func (h *Handler) UpdatePlanningShiftType(c *gin.Context) {
 	h.respondWithSuccess(c, http.StatusOK, gin.H{"message": "Planning updated successfully"})
 }
 
-func addShiftWithTeam(tx *gorm.DB, date time.Time, week int, shift string, ces []models.CE) error {
-	for _, ce := range ces {
-		// Add CE to planning
-		cePlanning := models.Planning{
-			Date:   date,
-			Week:   week,
-			Year:   date.Year(),
-			Shift:  shift,
-			CEID:   &ce.ID,
-			Status: "Scheduled",
+func getCEsForWeek(week int) (saturdayCEID, sundayCEID uint) {
+	switch week % 4 {
+	case 0:
+		return 2, 3
+	case 1:
+		return 1, 2
+	case 2:
+		return 4, 1
+	case 3:
+		return 3, 4
+	default:
+		return 0, 0 // This should never happen
+	}
+}
+
+func addShiftWithCEAndTeam(tx *gorm.DB, date time.Time, week int, shift string, ceID uint) error {
+	// Add CE to planning
+	cePlanning := models.Planning{
+		Date:   date,
+		Week:   week,
+		Year:   date.Year(),
+		Shift:  shift,
+		CEID:   &ceID,
+		Status: "Scheduled",
+	}
+	if err := tx.Create(&cePlanning).Error; err != nil {
+		return err
+	}
+
+	// Fetch CE with employees
+	var ce models.CE
+	if err := tx.Preload("Employees").First(&ce, ceID).Error; err != nil {
+		return err
+	}
+
+	// Add employees to planning
+	for _, emp := range ce.Employees {
+		empPlanning := models.Planning{
+			Date:       date,
+			Week:       week,
+			Year:       date.Year(),
+			Shift:      shift,
+			CEID:       &ceID,
+			EmployeeID: &emp.ID,
+			SectorID:   &emp.SectorID,
+			Status:     "Scheduled",
 		}
-		if err := tx.Create(&cePlanning).Error; err != nil {
+		if err := tx.Create(&empPlanning).Error; err != nil {
 			return err
 		}
-
-		// Add employees to planning
-		for _, emp := range ce.Employees {
-			empPlanning := models.Planning{
-				Date:       date,
-				Week:       week,
-				Year:       date.Year(),
-				Shift:      shift,
-				CEID:       &ce.ID,
-				EmployeeID: &emp.ID,
-				SectorID:   &emp.SectorID,
-				Status:     "Scheduled",
-			}
-			if err := tx.Create(&empPlanning).Error; err != nil {
-				return err
-			}
-		}
 	}
+
 	return nil
 }
 

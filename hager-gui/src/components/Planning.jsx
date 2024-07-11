@@ -24,6 +24,14 @@ const STATUS_OPTIONS = [
 ];
 
 const Planning = () => {
+    const getCurrentWeek = () => {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 1);
+        const diff = now - start;
+        const oneWeek = 1000 * 60 * 60 * 24 * 7;
+        return Math.ceil(diff / oneWeek);
+    };
+
     const [planningData, setPlanningData] = useState([]);
     const [currentWeek, setCurrentWeek] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -40,6 +48,10 @@ const Planning = () => {
         fetchEmployees();
         fetchSectorRequiredSkills()
         fetchCEs();
+    }, [currentWeek]);
+
+    useEffect(() => {
+        setShiftType(''); // Reset shift type when changing weeks
     }, [currentWeek]);
 
     const fetchPlanningData = async () => {
@@ -298,9 +310,12 @@ const Planning = () => {
     const handleShiftTypeChange = async (value) => {
         setShiftType(value);
         try {
-            await api.post('/update_planning_shift_type', {week: currentWeek, shiftType: value});
+            await api.post('/update_planning_shift_type', {
+                week: currentWeek,
+                shiftType: value
+            });
             message.success('Shift type updated successfully');
-            fetchPlanningData(); // Refresh the planning data
+            fetchPlanningData();
         } catch (error) {
             console.error('Failed to update shift type:', error);
             message.error('Failed to update shift type');
@@ -516,7 +531,7 @@ const Planning = () => {
                 <Select
                     value={currentWeek}
                     onChange={setCurrentWeek}
-                    style={{width: 120}}
+                    style={{ width: 120 }}
                 >
                     {[...Array(52)].map((_, i) => (
                         <Option key={i + 1} value={i + 1}>Week {i + 1}</Option>
@@ -525,7 +540,8 @@ const Planning = () => {
                 <Select
                     value={shiftType}
                     onChange={handleShiftTypeChange}
-                    style={{width: 120, marginLeft: 16}}
+                    style={{ width: 120, marginLeft: 16 }}
+                    placeholder="Choose shift type"
                 >
                     <Option value="4x8 L">4x8 Long</Option>
                     <Option value="4x8 N">4x8 Normal</Option>
@@ -543,11 +559,11 @@ const Planning = () => {
                 dataSource={data}
                 loading={loading}
                 pagination={false}
-                scroll={{x: 'max-content'}}
+                scroll={{ x: 'max-content' }}
                 components={{
                     body: {
-                        row: (props) => <tr {...props} style={{height: '50px'}}/>,
-                        cell: (props) => <td {...props} style={{padding: '8px', verticalAlign: 'middle'}}/>
+                        row: (props) => <tr {...props} style={{ height: '50px' }} />,
+                        cell: (props) => <td {...props} style={{ padding: '8px', verticalAlign: 'middle' }} />
                     }
                 }}
             />
