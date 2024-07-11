@@ -219,6 +219,17 @@ const EmployeeGrid = () => {
         }
     };
 
+    const showSwapConfirmation = (existingEmployee) => {
+        return new Promise((resolve) => {
+            Modal.confirm({
+                title: 'Confirm Employee Swap',
+                content: `There is already an employee (${existingEmployee.Name}) in the selected position. Do you want to swap their positions?`,
+                onOk: () => resolve(true),
+                onCancel: () => resolve(false),
+            });
+        });
+    };
+
     const handleEmployeeSubmit = async (values) => {
         setLoading(true)
         try {

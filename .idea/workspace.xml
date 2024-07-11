@@ -5,18 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Update GUI and improve functionalities&#10;&#10;Reformatted CSS for enhanced readability and consistency. Introduced a new &quot;Skills&quot; route in the App's JSX, and amplified functionality in EmployeeGrid, EmployeeModal, and ModifyEmployeeModal. Added search capabilities in Select dropdown on skills in ModifyEmployeeModal for an improved user experience and efficiency of the application.">
-      <change afterPath="$PROJECT_DIR$/hager-gui/src/utils/shift.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cac8b081-7f51-417e-9e25-a2f65f663044.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cac8b081-7f51-417e-9e25-a2f65f663044/storage_v2/_src_/schema/main.uQUzAA.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hager-gui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/employee.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/employee.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/planning.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/planning.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/router.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

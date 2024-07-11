@@ -19,7 +19,7 @@ func (h *Handler) GetPlannings(c *gin.Context) {
 	}
 
 	var plannings []models.Planning
-	if err := h.DB.Preload("Employee").Preload("Sector").Preload("CE").
+	if err := h.DB.Preload("Employee").Preload("Sector").Preload("CE").Preload("Substitute").
 		Where("week = ?", week).
 		Find(&plannings).Error; err != nil {
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch planning data")
@@ -52,6 +52,13 @@ func (h *Handler) GetPlannings(c *gin.Context) {
 			entry["ce"] = gin.H{
 				"id":   p.CE.ID,
 				"name": p.CE.Name,
+			}
+		}
+
+		if p.Substitute != nil {
+			entry["substitute"] = gin.H{
+				"id":   p.Substitute.ID,
+				"name": p.Substitute.Name,
 			}
 		}
 
@@ -108,7 +115,8 @@ func (h *Handler) AddPlanning(c *gin.Context) {
 func (h *Handler) UpdatePlanning(c *gin.Context) {
 	id := c.Param("id")
 	var input struct {
-		Status string `json:"status" binding:"required"`
+		Status       string `json:"status" binding:"required"`
+		SubstituteID *uint  `json:"SubstituteID"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -123,6 +131,7 @@ func (h *Handler) UpdatePlanning(c *gin.Context) {
 	}
 
 	planning.Status = input.Status
+	planning.SubstituteID = input.SubstituteID
 
 	if err := h.DB.Save(&planning).Error; err != nil {
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to update planning entry")

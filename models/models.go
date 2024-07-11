@@ -49,18 +49,20 @@ type EmployeeSkill struct {
 
 type Planning struct {
 	gorm.Model
-	Date       time.Time
-	Week       int
-	Year       int
-	Weekday    string `gorm:"->"`
-	Shift      string
-	CEID       *uint
-	CE         *CE `gorm:"foreignKey:CEID"`
-	SectorID   *uint
-	Sector     *Sector `gorm:"foreignKey:SectorID"`
-	EmployeeID *uint
-	Employee   *Employee `gorm:"foreignKey:EmployeeID"`
-	Status     string
+	Date         time.Time
+	Week         int
+	Year         int
+	Weekday      string `gorm:"->"`
+	Shift        string
+	CEID         *uint
+	CE           *CE `gorm:"foreignKey:CEID"`
+	SectorID     *uint
+	Sector       *Sector `gorm:"foreignKey:SectorID"`
+	EmployeeID   *uint
+	Employee     *Employee `gorm:"foreignKey:EmployeeID"`
+	Status       string
+	SubstituteID *uint
+	Substitute   *Employee `gorm:"foreignKey:SubstituteID"`
 }
 
 type User struct {

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Dropdown, Menu, message, Modal, Select, Table, Tooltip} from 'antd';
 import {EditOutlined, PlusOutlined} from '@ant-design/icons';
 import api from '../utils/Api.jsx';
@@ -189,13 +189,53 @@ const Planning = () => {
     };
 
     const handleStatusChange = async (planningId, newStatus) => {
+        if (newStatus === 'Absent (Planned)' || newStatus === 'Absent (Unplanned)' || newStatus === 'Training') {
+            const planningEntry = planningData.find(entry => entry.id === planningId);
+            const competentEmployees = employees.filter(emp =>
+                isEmployeeCompetent(emp, planningEntry.sector.id) && emp.ID !== planningEntry.employee.id
+            );
+
+            Modal.confirm({
+                title: 'Choose a substitute',
+                content: (
+                    <Select
+                        style={{width: '100%'}}
+                        onChange={(value) => handleSubstituteSelection(planningId, newStatus, value)}
+                    >
+                        <Option value={null}>No substitute</Option>
+                        {competentEmployees.map(emp => (
+                            <Option key={emp.ID} value={emp.ID}>{emp.Name}</Option>
+                        ))}
+                    </Select>
+                ),
+                onOk() {
+                },
+                onCancel() {
+                },
+            });
+        } else {
+            try {
+                await api.put(`/update_planning/${planningId}`, {status: newStatus, substituteId: null});
+                message.success('Status updated successfully');
+                fetchPlanningData();
+            } catch (error) {
+                console.error('Failed to update status:', error);
+                message.error('Failed to update status');
+            }
+        }
+    };
+
+    const handleSubstituteSelection = async (planningId, newStatus, substituteId) => {
         try {
-            await api.put(`/update_planning/${planningId}`, {status: newStatus});
-            message.success('Status updated successfully');
+            await api.put(`/update_planning/${planningId}`, {
+                status: newStatus,
+                substituteId: substituteId
+            });
+            message.success('Status and substitute updated successfully');
             fetchPlanningData();
         } catch (error) {
-            console.error('Failed to update status:', error);
-            message.error('Failed to update status');
+            console.error('Failed to update status and substitute:', error);
+            message.error('Failed to update status and substitute');
         }
     };
 
@@ -266,6 +306,14 @@ const Planning = () => {
             message.error('Failed to update shift type');
         }
     };
+
+    const getDropdownProps = useCallback((record, index) => {
+        return {
+            getPopupContainer: (triggerNode) => triggerNode.parentNode,
+            overlayStyle: {position: 'fixed'},
+            trigger: ['click'],
+        };
+    }, []);
 
     const columns = [
         {
@@ -340,7 +388,7 @@ const Planning = () => {
                 }
             },
         },
-        ...sectors.map(sector => ({
+        ...sectors.map((sector, index) => ({
             title: sector.name,
             dataIndex: 'sectors',
             key: sector.id,
@@ -351,7 +399,6 @@ const Planning = () => {
                 );
 
                 if (sectorData && sectorData.employee) {
-                    const backgroundColor = STATUS_COLORS[sectorData.status] || 'transparent';
                     const menu = (
                         <Menu>
                             {STATUS_OPTIONS.map(status => (
@@ -374,16 +421,36 @@ const Planning = () => {
                     );
 
                     return (
-                        <Dropdown overlay={menu} trigger={['click']}>
+                        <Dropdown
+                            overlay={menu}
+                            {...getDropdownProps(record, index)}
+                        >
                             <Tooltip title={`Status: ${sectorData.status}`}>
-            <span style={{
-                cursor: 'pointer',
-                backgroundColor: STATUS_COLORS[sectorData.status] || 'transparent',
-                padding: '2px 4px',
-                borderRadius: '4px'
-            }}>
-              {sectorData.employee.name} <EditOutlined style={{marginLeft: 8}}/>
-            </span>
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                        <span style={{
+                            cursor: 'pointer',
+                            backgroundColor: STATUS_COLORS[sectorData.status] || 'transparent',
+                            padding: '2px 4px',
+                            borderRadius: '4px',
+                            display: 'inline-block',
+                            width: '100%'
+                        }}>
+                            {sectorData.employee.name} <EditOutlined style={{marginLeft: 8}}/>
+                        </span>
+                                    {sectorData.substitute && (
+                                        <span style={{
+                                            color: '#df0000',
+                                            padding: '2px 4px',
+                                            borderRadius: '4px',
+                                            marginTop: '4px',
+                                            display: 'inline-block',
+                                            width: '100%',
+                                            fontSize: '0.9em'
+                                        }}>
+                                {sectorData.substitute.name}
+                            </span>
+                                    )}
+                                </div>
                             </Tooltip>
                         </Dropdown>
                     );
@@ -421,7 +488,7 @@ const Planning = () => {
                 if (ceEntry) {
                     rowData.ce = {
                         ...ceEntry.ce,
-                        status: ceEntry.status // Add this line
+                        status: ceEntry.status
                     };
                     rowData.planningId = ceEntry.id;
                 }
@@ -432,6 +499,7 @@ const Planning = () => {
                         employee: sectorData.employee,
                         status: sectorData.status,
                         planningId: sectorData.id,
+                        substitute: sectorData.substitute  // Add this line
                     } : {id: sector.id};
                 });
             } else {
@@ -476,6 +544,12 @@ const Planning = () => {
                 loading={loading}
                 pagination={false}
                 scroll={{x: 'max-content'}}
+                components={{
+                    body: {
+                        row: (props) => <tr {...props} style={{height: '50px'}}/>,
+                        cell: (props) => <td {...props} style={{padding: '8px', verticalAlign: 'middle'}}/>
+                    }
+                }}
             />
         </div>
     );
