@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Modal, Form, Input, message } from 'antd';
-import api from "../utils/Api.jsx";
+import api from "../utils/Api.js";
 
 const SectorModal = ({ visible, onClose, sector, onSubmit }) => {
     const [form] = Form.useForm();

@@ -1,39 +1,81 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, Dropdown, Input, Menu, message, Modal, Spin, Table, Tooltip} from 'antd';
+import {Button, Dropdown, Input, Menu, message, Modal, Spin, Table, TableColumnsType, Tooltip} from 'antd';
 import {DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons';
 import CEModal from './CEModal';
 import SectorModal from './SectorModal';
 import EmployeeModal from './EmployeeModal';
 import ReservistModal from './ReservistModal';
 import './EmployeeGrid.css';
-import api from '../utils/Api.jsx';
+import api from '../utils/Api';
 
 const {Search} = Input;
 
-const EmployeeGrid = () => {
-    const [employees, setEmployees] = useState([]);
-    const [filteredEmployees, setFilteredEmployees] = useState([]);
-    const [reservists, setReservists] = useState([]);
-    const [filteredReservists, setFilteredReservists] = useState([]);
-    const [ces, setCEs] = useState([]);
-    const [sectors, setSectors] = useState([]);
-    const [skills, setSkills] = useState([]);
+interface Employee {
+    ID: number;
+    Name: string;
+    CEID: number;
+    CE: {
+        id: number;
+        name: string;
+    };
+    SectorID: number;
+    Sector: {
+        id: number;
+        name: string;
+    };
+    Skills: {
+        id: number;
+        name: string;
+    }[];
+}
+
+interface CE {
+    id: number;
+    name: string;
+}
+
+interface Sector {
+    id: number;
+    name: string;
+}
+
+interface Skill {
+    id: number;
+    name: string;
+}
+
+interface Reservist {
+    id: number;
+    name: string;
+    skills: {
+        id: number;
+        name: string;
+    }[];
+}
+
+const EmployeeGrid: React.FC = () => {
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+    const [reservists, setReservists] = useState<Reservist[]>([]);
+    const [filteredReservists, setFilteredReservists] = useState<Reservist[]>([]);
+    const [ces, setCEs] = useState<CE[]>([]);
+    const [sectors, setSectors] = useState<Sector[]>([]);
+    const [skills, setSkills] = useState<Skill[]>([]);
     const [isCEModalVisible, setCEModalVisible] = useState(false);
     const [isSectorModalVisible, setSectorModalVisible] = useState(false);
     const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
     const [isReservistModalVisible, setReservistModalVisible] = useState(false);
-    const [selectedCE, setSelectedCE] = useState(null);
-    const [selectedSector, setSelectedSector] = useState(null);
-    const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [selectedReservist, setSelectedReservist] = useState(null);
-    const [preSelectedCE, setPreSelectedCE] = useState(null);
-    const [preSelectedSector, setPreSelectedSector] = useState(null);
+    const [selectedCE, setSelectedCE] = useState<CE | null>(null);
+    const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+    const [selectedReservist, setSelectedReservist] = useState<Reservist | null>(null);
+    const [preSelectedCE, setPreSelectedCE] = useState<number | null>(null);
+    const [preSelectedSector, setPreSelectedSector] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState('');
     const [reservistSearchText, setReservistSearchText] = useState('');
 
-
-    const fetchData = useCallback(async (endpoint, setter, errorMessage) => {
+    const fetchData = useCallback(async (endpoint: string, setter: React.Dispatch<React.SetStateAction<any>>, errorMessage: string) => {
         try {
             const response = await api.get(`http://localhost:8080/${endpoint}`);
             setter(response.data);
@@ -119,7 +161,7 @@ const EmployeeGrid = () => {
         setFilteredReservists(filtered);
     }, [reservists, reservistSearchText]);
 
-    const handleSearch = (value) => {
+    const handleSearch = (value: string) => {
         setSearchText(value);
         const filtered = employees.filter(employee =>
             employee.Name.toLowerCase().includes(value.toLowerCase()) ||
@@ -130,13 +172,13 @@ const EmployeeGrid = () => {
         setFilteredEmployees(filtered);
 
         const filteredRes = reservists.filter(reservist =>
-            reservist.Name.toLowerCase().includes(value.toLowerCase()) ||
-            reservist.Skills.some(skill => skill.name.toLowerCase().includes(value.toLowerCase()))
+            reservist.name.toLowerCase().includes(value.toLowerCase()) ||
+            reservist.skills.some(skill => skill.name.toLowerCase().includes(value.toLowerCase()))
         );
         setFilteredReservists(filteredRes);
     };
 
-    const showDeleteConfirm = (type, id) => {
+    const showDeleteConfirm = (type: string, id: number) => {
         Modal.confirm({
             title: `Are you sure you want to delete this ${type}?`,
             content: 'This action cannot be undone.',
@@ -149,7 +191,7 @@ const EmployeeGrid = () => {
         });
     };
 
-    const renderDropdown = (item, type, ceId, sectorId) => (
+    const renderDropdown = (item: { id: number; name: string }, type: string, ceId?: number, sectorId?: number) => (
         <Dropdown overlay={
             <Menu>
                 <Menu.Item key="edit" icon={<EditOutlined/>} onClick={() => handleModalVisibility(type, true, item)}>
@@ -178,7 +220,7 @@ const EmployeeGrid = () => {
         }
     };
 
-    const handleModalVisibility = (type, visible, item = null) => {
+    const handleModalVisibility = (type: string, visible: boolean, item: any = null) => {
         switch (type) {
             case 'ce':
                 setCEModalVisible(visible);
@@ -189,16 +231,32 @@ const EmployeeGrid = () => {
                 setSelectedSector(item);
                 break;
             case 'employee':
-                if (item && item.ceId && item.sectorId) {
-                    setPreSelectedCE(item.ceId);
-                    setPreSelectedSector(item.sectorId);
-                    setSelectedEmployee(null);
-                } else if (item && item.id) {
-                    const fullEmployeeData = employees.find(emp => emp.ID === item.id);
-                    setSelectedEmployee(fullEmployeeData);
-                    setPreSelectedCE(null);
-                    setPreSelectedSector(null);
+                if (visible) {
+                    if (item && item.ID) {
+                        // Editing an existing employee
+                        const fullEmployeeData = employees.find(emp => emp.ID === item.ID);
+                        if (fullEmployeeData) {
+                            setSelectedEmployee(fullEmployeeData);
+                            setPreSelectedCE(null);
+                            setPreSelectedSector(null);
+                        } else {
+                            console.error(`Employee with ID ${item.ID} not found`);
+                            message.error('Employee data not found');
+                            return;
+                        }
+                    } else if (item && item.ceId && item.sectorId) {
+                        // Adding a new employee with preselected CE and Sector
+                        setSelectedEmployee(null);
+                        setPreSelectedCE(item.ceId);
+                        setPreSelectedSector(item.sectorId);
+                    } else {
+                        // Adding a new employee without preselections
+                        setSelectedEmployee(null);
+                        setPreSelectedCE(null);
+                        setPreSelectedSector(null);
+                    }
                 } else {
+                    // Closing the modal
                     setSelectedEmployee(null);
                     setPreSelectedCE(null);
                     setPreSelectedSector(null);
@@ -207,7 +265,6 @@ const EmployeeGrid = () => {
                 break;
             case 'reservist':
                 if (item) {
-                    // Directly use the item as it already has the correct structure
                     setSelectedReservist(item);
                 } else {
                     setSelectedReservist(null);
@@ -219,63 +276,87 @@ const EmployeeGrid = () => {
         }
     };
 
-    const showSwapConfirmation = (existingEmployee) => {
+    const handleEmployeeSubmit = async (values: any) => {
+        console.log('handleEmployeeSubmit called with values:', values);
+        setLoading(true);
+        try {
+            const payload = {
+                name: values.name,
+                ce_id: values.ce_id,
+                sector_id: values.sector_id,
+                skills: values.skills
+            };
+
+            let response;
+            if (selectedEmployee) {
+                console.log('Updating existing employee:', selectedEmployee.ID);
+                response = await api.put(`/update_employee/${selectedEmployee.ID}`, payload);
+            } else {
+                console.log('Creating new employee');
+                response = await api.post('/add_employee', payload);
+            }
+
+            console.log('API response:', response.data);
+
+            if (response.data.requiresSwap) {
+                const confirmed = await showSwapConfirmation(response.data.existingEmployee);
+                if (confirmed) {
+                    const swapPayload = {
+                        ...payload,
+                        swap: true
+                    };
+                    const swapResponse = await api.put(`/update_employee/${response.data.id || selectedEmployee?.ID}`, swapPayload);
+                    console.log('Swap response:', swapResponse.data);
+                    message.success('Employees swapped successfully');
+                } else {
+                    console.log('Swap cancelled by user');
+                    return; // Don't close modal or refresh if swap is cancelled
+                }
+            } else {
+                message.success(selectedEmployee ? 'Employee updated successfully' : 'Employee added successfully');
+            }
+
+            setEmployeeModalVisible(false);
+            await refreshGrid();
+        } catch (error) {
+            console.error('Failed to submit employee:', error);
+            message.error('Failed to submit employee: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const showSwapConfirmation = (existingEmployee: any): Promise<boolean> => {
         return new Promise((resolve) => {
             Modal.confirm({
                 title: 'Confirm Employee Swap',
-                content: `There is already an employee (${existingEmployee.Name}) in the selected position. Do you want to swap their positions?`,
+                content: `There is already an employee (${existingEmployee.name}) in the selected position. Do you want to swap their positions?`,
                 onOk: () => resolve(true),
                 onCancel: () => resolve(false),
             });
         });
     };
 
-    const handleEmployeeSubmit = async (values) => {
-        setLoading(true)
-        try {
-            const payload = {};
-            if (values.name) payload.name = values.name;
-            if (values.ce_id) payload.ce_id = values.ce_id;
-            if (values.sector_id) payload.sector_id = values.sector_id;
-            if (values.skills && values.skills.length > 0) payload.skills = values.skills;
-
-            const response = await api.put(`/update_employee/${selectedEmployee.ID}`, payload);
-
-            if (response.data.requiresSwap) {
-                const confirmed = await showSwapConfirmation(response.data.existingEmployee);
-                if (confirmed) {
-                    const swapResponse = await api.put(`/update_employee/${selectedEmployee.ID}`, {
-                        ...payload,
-                        swap: true
-                    });
-                    message.success('Employees swapped successfully');
-                    setEmployeeModalVisible(false);
-                    await refreshGrid();
-                }
-            } else {
-                message.success('Employee updated successfully');
-                setEmployeeModalVisible(false);
-                await refreshGrid();
-            }
-        } catch (error) {
-            console.error('Failed to update employee:', error);
-            message.error('Failed to update employee');
-        } finally {
-            setLoading(false)
-        }
-    };
-
-    const handleDelete = async (type, id) => {
+    const handleDelete = async (type: string, id: number) => {
         try {
             await api.delete(`http://localhost:8080/delete_${type}/${id}`);
             message.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
-            refreshGrid();
+
+            // Update local state based on the type
+            if (type === 'ce') {
+                setCEs(prevCEs => prevCEs.filter(ce => ce.id !== id));
+            } else if (type === 'sector') {
+                setSectors(prevSectors => prevSectors.filter(sector => sector.id !== id));
+            }
+
+            // Refresh the employees grid
+            await fetchEmployees();
         } catch (error) {
             message.error(`Failed to delete ${type}`);
         }
     };
 
-    const handleReservistSubmit = async (values) => {
+    const handleReservistSubmit = async (values: any) => {
         console.log('Submitting reservist data:', values);
         try {
             if (selectedReservist) {
@@ -288,12 +369,12 @@ const EmployeeGrid = () => {
             setReservistModalVisible(false);
             await fetchReservists();
         } catch (error) {
-            console.error('Failed to save reservist:', error.response?.data || error.message);
-            message.error('Failed to save reservist: ' + (error.response?.data?.error || error.message));
+            console.error('Failed to save reservist:', error);
+            message.error('Failed to save reservist: ' + (error as Error).message);
         }
     };
 
-    const columns = [
+    const columns: TableColumnsType<any> = [
         {
             title: 'CE',
             dataIndex: 'ceName',
@@ -305,7 +386,7 @@ const EmployeeGrid = () => {
             title: renderDropdown(sector, 'sector'),
             dataIndex: sector.name,
             key: sector.id,
-            render: (employees, record) => (
+            render: (employees: any[], record: any) => (
                 <div className="employee-cell">
                     {employees && employees.length > 0 ? employees.map(employee => (
                         renderDropdown(employee, 'employee', record.key, sector.id)
@@ -322,7 +403,7 @@ const EmployeeGrid = () => {
     ];
 
     const data = ces.map(ce => {
-        const row = {key: ce.id, ceName: ce.name};
+        const row: any = {key: ce.id, ceName: ce.name};
         sectors.forEach(sector => {
             row[sector.name] = filteredEmployees.filter(emp =>
                 emp.CEID === ce.id && emp.SectorID === sector.id
@@ -335,7 +416,7 @@ const EmployeeGrid = () => {
         return row;
     });
 
-    const reservistColumns = [
+    const reservistColumns: TableColumnsType<Reservist> = [
         {
             title: 'Name',
             dataIndex: 'name',
@@ -348,8 +429,8 @@ const EmployeeGrid = () => {
             key: 'skills',
             render: (skills) => (
                 <span className="reservist-skills">
-                    {skills && Array.isArray(skills) ? skills.map(skill => skill.name).join(', ') : ''}
-                </span>
+          {skills && Array.isArray(skills) ? skills.map(skill => skill.name).join(', ') : ''}
+        </span>
             ),
         },
     ];
@@ -445,12 +526,12 @@ const EmployeeGrid = () => {
                     preSelectedSector={preSelectedSector}
                 />
                 <ReservistModal
-            visible={isReservistModalVisible}
-            onClose={() => setReservistModalVisible(false)}
-            reservist={selectedReservist}
-            skills={skills}
-            onSubmit={handleReservistSubmit}
-        />
+                    visible={isReservistModalVisible}
+                    onClose={() => setReservistModalVisible(false)}
+                    reservist={selectedReservist}
+                    skills={skills}
+                    onSubmit={handleReservistSubmit}
+                />
             </div>
         </Spin>
     );

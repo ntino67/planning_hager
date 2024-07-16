@@ -116,7 +116,7 @@ func (h *Handler) UpdatePlanning(c *gin.Context) {
 	id := c.Param("id")
 	var input struct {
 		Status       string `json:"status" binding:"required"`
-		SubstituteID *uint  `json:"SubstituteID"`
+		SubstituteID *uint  `json:"substituteId"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -124,17 +124,43 @@ func (h *Handler) UpdatePlanning(c *gin.Context) {
 		return
 	}
 
+	tx := h.DB.Begin()
+
 	var planning models.Planning
-	if err := h.DB.First(&planning, id).Error; err != nil {
+	if err := tx.First(&planning, id).Error; err != nil {
+		tx.Rollback()
 		h.respondWithError(c, http.StatusNotFound, "Planning entry not found")
 		return
 	}
 
+	// If a substitute is being assigned
+	if input.SubstituteID != nil {
+		// Check if the substitute is already assigned elsewhere on the same date and shift
+		var existingAssignment models.Planning
+		if err := tx.Where("date = ? AND shift = ? AND employee_id = ?", planning.Date, planning.Shift, input.SubstituteID).First(&existingAssignment).Error; err == nil {
+			// Remove the substitute from their original position
+			existingAssignment.EmployeeID = nil
+			existingAssignment.Status = "Unassigned"
+			if err := tx.Save(&existingAssignment).Error; err != nil {
+				tx.Rollback()
+				h.respondWithError(c, http.StatusInternalServerError, "Failed to update existing assignment")
+				return
+			}
+		}
+	}
+
+	// Update the planning entry
 	planning.Status = input.Status
 	planning.SubstituteID = input.SubstituteID
 
-	if err := h.DB.Save(&planning).Error; err != nil {
+	if err := tx.Save(&planning).Error; err != nil {
+		tx.Rollback()
 		h.respondWithError(c, http.StatusInternalServerError, "Failed to update planning entry")
+		return
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		h.respondWithError(c, http.StatusInternalServerError, "Failed to commit transaction")
 		return
 	}
 

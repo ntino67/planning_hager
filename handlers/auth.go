@@ -65,10 +65,10 @@ func (h *Handler) Login(c *gin.Context) {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
-		log.Printf("Received token: %s", tokenString) // Add this line
+		log.Printf("Received token: %s", tokenString)
 
 		if tokenString == "" {
-			log.Println("No authorization header provided") // Add this line
+			log.Println("No authorization header provided")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "No authorization header provided"})
 			c.Abort()
 			return
@@ -82,7 +82,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil {
-			log.Printf("Error parsing token: %v", err) // Add this line
+			log.Printf("Error parsing token: %v", err)
 			if err == jwt.ErrSignatureInvalid {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature"})
 			} else {
@@ -93,13 +93,19 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		if !token.Valid {
-			log.Println("Invalid token") // Add this line
+			log.Println("Invalid token")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
 
-		log.Printf("Token valid for user: %s, role: %s", claims.Username, claims.Role) // Add this line
+		if claims.Role != "admin" && claims.Role != "user" && claims.Role != "readonly" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Invalid role"})
+			c.Abort()
+			return
+		}
+
+		log.Printf("Token valid for user: %s, role: %s", claims.Username, claims.Role)
 		c.Set("username", claims.Username)
 		c.Set("role", claims.Role)
 		c.Next()
@@ -126,22 +132,61 @@ func AdminMiddleware() gin.HandlerFunc {
 func VerifyToken(c *gin.Context) {
 	username, exists := c.Get("username")
 	if !exists {
-		log.Println("No username found in context") // Add this line
+		log.Println("No username found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No username found in context"})
 		return
 	}
 
 	role, exists := c.Get("role")
 	if !exists {
-		log.Println("No role found in context") // Add this line
+		log.Println("No role found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No role found in context"})
 		return
 	}
 
-	log.Printf("Token verified for user: %v, role: %v", username, role) // Add this line
+	log.Printf("Token verified for user: %v, role: %v", username, role)
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "Token is valid",
 		"username": username,
 		"role":     role,
+	})
+}
+
+func (h *Handler) GetCurrentEmployee(c *gin.Context) {
+	username, exists := c.Get("username")
+	if !exists {
+		h.respondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		return
+	}
+
+	var user models.User
+	if err := h.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch user")
+		return
+	}
+
+	if user.Role == "admin" {
+		// For admin, we don't need to fetch employee data
+		h.respondWithSuccess(c, http.StatusOK, gin.H{
+			"id":   user.ID,
+			"name": user.Username,
+			"role": "admin",
+		})
+		return
+	}
+
+	var employee models.Employee
+	if err := h.DB.Where("name = ?", user.Username).Preload("CE").Preload("Sector").Preload("Skills").First(&employee).Error; err != nil {
+		h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch employee data")
+		return
+	}
+
+	h.respondWithSuccess(c, http.StatusOK, gin.H{
+		"id":     employee.ID,
+		"name":   employee.Name,
+		"ce":     employee.CE,
+		"sector": employee.Sector,
+		"skills": employee.Skills,
+		"role":   user.Role,
 	})
 }

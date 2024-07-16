@@ -32,6 +32,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		protected.GET("/skills", h.GetSkills)
 		protected.GET("/employee_skills/:id", h.GetEmployeeSkills)
 		protected.GET("/sector_required_skills", h.GetSectorRequiredSkills)
+		protected.GET("/api/current-employee", h.GetCurrentEmployee)
 
 		// Admin only routes
 		admin := protected.Group("/")

@@ -1,4 +1,3 @@
-/* src/components/Planning.css */
 .planning-container {
     padding: 20px;
 }
@@ -7,33 +6,46 @@
     margin-bottom: 20px;
     display: flex;
     align-items: center;
+    gap: 10px;
+    max-width: 500px;
 }
 
 .planning-controls .ant-select {
-    margin-right: 16px;
+    min-width: 120px;
 }
 
 .planning-controls .ant-btn {
-    margin-right: 8px;
+    margin-left: auto;
 }
 
-.ant-table-cell {
-    text-align: center;
+.ant-table-wrapper {
+  .ant-table {
+    border: 1px solid #f0f0f0;
+
+    .ant-table-thead > tr > th {
+      background-color: #fafafa;
+      font-weight: bold;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .ant-table-row:hover {
+      background-color: #e6f7ff;
+    }
+
+    .current-day-row {
+      background-color: #e6f7ff;
+      font-weight: bold;
+    }
+  }
 }
 
-/* Add different background colors for different shifts */
-.ant-table-row[data-row-key$="-M"] {
-    background-color: #e6f7ff;
+.ant-tag {
+  margin-right: 0;
 }
 
-.ant-table-row[data-row-key$="-S"] {
-    background-color: #fff7e6;
+.ant-tooltip {
+  max-width: 300px;
 }
-
-.ant-table-row[data-row-key$="-N"] {
-    background-color: #f6ffed;
-}
-
-.status-available { background-color: #e6fffa; }
-.status-unavailable { background-color: #fff5f5; }
-.status-assigned { background-color: #e6fffb; }

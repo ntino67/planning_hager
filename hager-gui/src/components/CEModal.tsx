@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {Button, Form, Input, Modal} from 'antd';
-import api from "../utils/Api.jsx";
+import api from "../utils/Api.js";
 
 const CEModal = ({ visible, onClose, ce, onSubmit }) => {
     const [form] = Form.useForm();

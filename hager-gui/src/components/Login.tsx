@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Button, Form, Input, message} from 'antd';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
-import api from '../utils/Api.jsx';
+import api from '../utils/Api.js';
 
 const Login = ({setUserRole}) => {
     const [loading, setLoading] = useState(false);
