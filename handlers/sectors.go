@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -113,7 +114,7 @@ func (h *Handler) GetSectorByID(c *gin.Context) {
 
 	var sector models.Sector
 	if err := h.DB.First(&sector, sectorID).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
 			h.respondWithError(c, http.StatusNotFound, "Sector not found")
 		} else {
 			h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch sector")

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -79,7 +80,7 @@ func (h *Handler) GetCEByID(c *gin.Context) {
 
 	var ce models.CE
 	if err := h.DB.First(&ce, ceID).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
 			h.respondWithError(c, http.StatusNotFound, "CE not found")
 		} else {
 			h.respondWithError(c, http.StatusInternalServerError, "Failed to fetch CE")

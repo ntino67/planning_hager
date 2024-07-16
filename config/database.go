@@ -6,13 +6,16 @@ import (
 )
 
 func MigrateDB(db *gorm.DB) {
-	db.AutoMigrate(
+	err := db.AutoMigrate(
 		&models.Sector{},
 		&models.CE{},
 		&models.Skill{},
 		&models.Employee{},
 		&models.EmployeeSkill{},
 		&models.Planning{},
-		&models.Reservist{}, // Add this line
+		&models.Reservist{},
 	)
+	if err != nil {
+		return
+	}
 }

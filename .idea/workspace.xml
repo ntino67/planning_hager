@@ -4,32 +4,15 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Fixed the shift type">
-      <change afterPath="$PROJECT_DIR$/hager-gui/src/App.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hager-gui/src/context/AppContext.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hager-gui/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/add_username_to_users.go" afterDir="false" />
+    <list default="true" id="00da3444-162b-4850-bf6e-de77400979d0" name="Changes" comment="Conversion to Typescript">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qodana.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/App.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/CEModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/CEModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeGrid.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/EmployeeModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Login.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/Login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Planning.css" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/Planning.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/Planning.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/ReservistModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/ReservistModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/components/SectorModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/context/AppContext.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/main.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/utils/Api.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/utils/Api.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hager-gui/src/utils/shift.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/hager-gui/src/utils/shift.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/database.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/planning.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/planning.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/ce.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/ce.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/sectors.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/sectors.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/add_username_to_users.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,12 +38,23 @@
     &quot;assignee&quot;: &quot;ntino67&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/ntino67/planning_hager.git&quot;,
-    &quot;accountId&quot;: &quot;b7a37a63-7fff-4c57-8769-100f8ace01d0&quot;
-  }
-}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/ntino67/planning_hager.git",
+    "accountId": "b7a37a63-7fff-4c57-8769-100f8ace01d0"
+  },
+  "recentNewPullRequestHead": {
+    "server": {
+      "useHttp": false,
+      "host": "github.com",
+      "port": null,
+      "suffix": null
+    },
+    "owner": "ntino67",
+    "repository": "planning_hager"
+  },
+  "editorReviewEnabled": false
+}]]></component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
@@ -80,6 +74,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "DefaultGoTemplateProperty": "Go File",
     "Go Build.go build planning_hager (1).executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -88,7 +83,7 @@
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "database.data.extractors.current.export.id": "CSV-Groovy.csv.groovy",
-    "git-widget-placeholder": "Planning-implementation",
+    "git-widget-placeholder": "#1 on Planning-implementation",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "ignore_missing_gitignore": "true",
@@ -109,6 +104,28 @@
     ]
   }
 }]]></component>
+  <component name="QodanaCIConfigService">
+    <option name="ciType" value="GITHUB" />
+    <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
+  </component>
+  <component name="QodanaCloudProjectLink">
+    <option name="lastReportId" value="PkKXd" />
+    <option name="linkedProjectId" value="AbZjK" />
+    <option name="linkedProjectName" value="Planning Hager" />
+    <option name="organizationId" value="3wXB1" />
+    <option name="userId" value="3ePq1" />
+  </component>
+  <component name="QodanaHighlightedReportService">
+    <option name="cloudReportPersistedInfo">
+      <CloudReportPersistedInfo>
+        <option name="projectId" value="AbZjK" />
+        <option name="reportId" value="PkKXd" />
+      </CloudReportPersistedInfo>
+    </option>
+  </component>
+  <component name="QodanaIsSelectedPersistenceService">
+    <option name="selectedOrLoading" value="true" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\matte\GolandProjects\planning_hager\hager-gui\src\components" />
@@ -160,7 +177,8 @@
     <MESSAGE value="Update GUI and improve functionalities&#10;&#10;Reformatted CSS for enhanced readability and consistency. Introduced a new &quot;Skills&quot; route in the App's JSX, and amplified functionality in EmployeeGrid, EmployeeModal, and ModifyEmployeeModal. Added search capabilities in Select dropdown on skills in ModifyEmployeeModal for an improved user experience and efficiency of the application." />
     <MESSAGE value="Implemented substitute functionnality" />
     <MESSAGE value="Fixed the shift type" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed the shift type" />
+    <MESSAGE value="Conversion to Typescript" />
+    <option name="LAST_COMMIT_MESSAGE" value="Conversion to Typescript" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
