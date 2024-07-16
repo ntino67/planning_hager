@@ -1,45 +1,68 @@
 package main
 
 import (
-	"database/sql"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	"fmt"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/sqlserver"
+	"gorm.io/gorm"
 	"log"
+	"os"
+
+	"planning_hager/config"
+	"planning_hager/routes"
 )
 
-func main() {
-	db, err := sql.Open("sqlite3", "./planning.db")
+var db *gorm.DB
+
+// Add this function to your main.go file
+func getCurrentDirectory() string {
+	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatal("Error opening database:", err)
+		log.Printf("Error getting current directory: %v", err)
+		return "unknown"
 	}
-	defer db.Close()
+	return dir
+}
 
-	router := gin.Default()
-	router.Use(cors.Default())
+func main() {
+	// At the beginning of your main() function
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Error loading .env file: %v", err)
+		log.Println("Current working directory:", getCurrentDirectory())
+		log.Println("Falling back to environment variables")
+	}
 
-	router.GET("/sectors", func(c *gin.Context) { getSectors(c, db) })
-	router.GET("/ces", func(c *gin.Context) { getCEs(c, db) })
+	// Azure SQL Database connection details
+	server := os.Getenv("DB_SERVER")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	database := os.Getenv("DB_NAME")
 
-	router.POST("/sectors", func(c *gin.Context) { createSector(c, db) })
-	router.PUT("/sectors/:id", func(c *gin.Context) { updateSector(c, db) })
-	router.DELETE("/sectors/:id", func(c *gin.Context) { deleteSector(c, db) })
+	// Build connection string
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+		server, user, password, port, database)
 
-	router.GET("/employees", func(c *gin.Context) { getEmployees(c, db) })
-	router.POST("/employees", func(c *gin.Context) { createEmployee(c, db) })
-	router.PUT("/employees/:id", func(c *gin.Context) { updateEmployee(c, db) })
-	router.DELETE("/employees/:id", func(c *gin.Context) { deleteEmployee(c, db) })
+	// Create connection pool
+	var err error
+	db, err = gorm.Open(sqlserver.Open(connString), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Error creating connection pool: ", err.Error())
+	}
 
-	router.POST("/ces", func(c *gin.Context) { createCE(c, db) })
-	router.PUT("/ces/:id", func(c *gin.Context) { updateCE(c, db) })
-	router.DELETE("/ces/:id", func(c *gin.Context) { deleteCE(c, db) })
+	// Run database migrations
+	config.MigrateDB(db)
 
-	router.GET("/employees_ce_sector", func(c *gin.Context) { getEmployeesWithCESector(c, db) })
-	router.POST("/add_employee", func(c *gin.Context) { addEmployee(c, db) })
-	router.POST("/delete_employee", func(c *gin.Context) { deleteEmployee(c, db) })
-	router.POST("/modify_employee", func(c *gin.Context) { modifyEmployee(c, db) })
+	// Initialize router
+	r := routes.SetupRouter(db)
 
-	router.GET("/planning")
-
-	router.Run(":8080")
+	// Start server
+	serverPort := os.Getenv("SERVER_PORT")
+	if serverPort == "" {
+		serverPort = "8080"
+	}
+	log.Printf("Server starting on port %s", serverPort)
+	if err := r.Run(":" + serverPort); err != nil {
+		log.Fatal("Error starting server: ", err.Error())
+	}
 }
