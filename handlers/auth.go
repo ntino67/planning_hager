@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strings"
@@ -78,12 +79,12 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		claims := &models.Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwtKey), nil
+			return jwtKey, nil
 		})
 
 		if err != nil {
 			log.Printf("Error parsing token: %v", err)
-			if err == jwt.ErrSignatureInvalid {
+			if errors.Is(jwt.ErrSignatureInvalid, err) {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature"})
 			} else {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
